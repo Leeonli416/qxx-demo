@@ -1,0 +1,2632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>泉小新 — 新就业群体数字化治理平台 · 交互原型</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+/* ========================================== DESIGN TOKENS ========================================== */
+:root {
+  --primary: #1a3c5e;
+  --primary-light: #2b6cb0;
+  --primary-lighter: #dbeafe;
+  --primary-glow: rgba(43, 108, 176, 0.2);
+  --primary-bg: #f0f7ff;
+  --warm: #f97316;
+  --warm-light: #fb923c;
+  --warm-bg: #fff7ed;
+  --warm-glow: rgba(249, 115, 22, 0.18);
+  --sun: #fbbf24;
+  --sun-bg: #fffbeb;
+  --cyan: #06b6d4;
+  --cyan-bg: #ecfeff;
+  --cyan-glow: rgba(6, 182, 212, 0.2);
+  --success: #10b981;
+  --success-bg: #ecfdf5;
+  --danger: #ef4444;
+  --danger-bg: #fef2f2;
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --pink: #ec4899;
+  --pink-bg: #fdf2f8;
+  --text-1: #1e293b;
+  --text-2: #475569;
+  --text-3: #94a3b8;
+  --text-4: #cbd5e1;
+  --bg-page: #f8fafc;
+  --bg-white: #fff;
+  --bg-card: #fff;
+  --glass-bg: rgba(255,255,255,0.72);
+  --glass-border: rgba(255,255,255,0.5);
+  --border: #e2e8f0;
+  --border-light: #f1f5f9;
+  --radius-sm: 10px;
+  --radius: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --shadow-sm: 0 1px 2px rgba(26,60,94,.04);
+  --shadow: 0 4px 16px rgba(26,60,94,.06), 0 1px 3px rgba(26,60,94,.04);
+  --shadow-lg: 0 12px 40px rgba(26,60,94,.1), 0 4px 12px rgba(26,60,94,.05);
+  --shadow-glow: 0 0 0 1px rgba(43,108,176,.1), 0 8px 32px rgba(43,108,176,.12);
+  --phone-w: 375px;
+  --phone-h: 700px;
+  --transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(170deg, #fef7ed 0%, #fef9f0 15%, #f0f7ff 50%, #f8fafc 100%);
+  color: var(--text-1);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(ellipse 70% 40% at 20% -10%, rgba(249,115,22,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse 60% 50% at 80% 30%, rgba(43,108,176,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse 50% 30% at 50% 90%, rgba(251,191,36,0.03) 0%, transparent 50%);
+}
+
+/* ========================================== TOP TAB BAR ========================================== */
+.tab-bar {
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(249,115,22,.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(26,60,94,.03), 0 4px 16px rgba(26,60,94,.03);
+}
+.tab-bar::before {
+  content: '🏠 泉小新';
+  position: absolute;
+  left: 28px;
+  font-size: 15px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #1a3c5e, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+.tab-btn {
+  padding: 16px 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-2);
+  border-bottom: 2.5px solid transparent;
+  transition: var(--transition);
+  white-space: nowrap;
+  position: relative;
+  letter-spacing: -0.01em;
+}
+.tab-btn:hover { color: var(--primary-light); background: rgba(249,115,22,.03); }
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--warm);
+  font-weight: 700;
+  background: linear-gradient(180deg, rgba(249,115,22,.04) 0%, transparent 100%);
+}
+.tab-btn .badge {
+  display: inline-block;
+  font-size: 10px;
+  background: linear-gradient(135deg, var(--warm), var(--warm-light));
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 6px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ========================================== MAIN CONTENT ========================================== */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ========================================== PHONE FRAME ========================================== */
+.phone-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px 50px;
+}
+.phone-frame {
+  width: var(--phone-w);
+  height: var(--phone-h);
+  background: #fafafa;
+  border-radius: 32px;
+  box-shadow:
+    0 0 0 2px #0f2b46,
+    0 0 0 5px #334155,
+    0 0 0 7px #0f2b46,
+    0 24px 60px rgba(15,43,70,.18),
+    0 8px 20px rgba(15,43,70,.1);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.phone-notch {
+  background: #0f2b46;
+  height: 34px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-shrink: 0;
+  padding-bottom: 8px;
+}
+.phone-notch-bar {
+  width: 88px;
+  height: 5px;
+  background: #1e293b;
+  border-radius: 100px;
+}
+.phone-status {
+  background: linear-gradient(135deg, #1a3c5e 0%, #2b6cb0 100%);
+  color: #fff;
+  padding: 8px 18px;
+  font-size: 11px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.phone-status .time { font-weight: 700; font-size: 13px; }
+.phone-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #faf9f7;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+.phone-body::-webkit-scrollbar { width: 3px; }
+.phone-body::-webkit-scrollbar-thumb { background: #fcd9b8; border-radius: 100px; }
+.phone-body::-webkit-scrollbar-track { background: transparent; }
+.phone-tabbar {
+  display: flex;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(249,115,22,.08);
+  flex-shrink: 0;
+  padding: 6px 0 8px;
+}
+.phone-tabbar .tb-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 0;
+  cursor: pointer;
+  color: var(--text-3);
+  font-size: 10px;
+  border: none;
+  background: none;
+  transition: var(--transition);
+  font-weight: 500;
+}
+.phone-tabbar .tb-item.active { color: var(--warm); font-weight: 700; }
+.phone-tabbar .tb-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 24px;
+  height: 3px;
+  background: var(--warm);
+  border-radius: 0 0 100px 100px;
+}
+.phone-tabbar .tb-item svg { width: 20px; height: 20px; }
+
+/* ========================================== AI 智能服务搜索条 + 全屏对话 ========================================== */
+.ai-search-bar {
+  margin: 0 14px 10px; padding: 10px 16px;
+  background: linear-gradient(135deg, #eff6ff 0%, #f0f5ff 50%, #ecfeff 100%);
+  border: 1.5px solid rgba(37,99,235,.15);
+  border-radius: 100px; display: flex; align-items: center; gap: 10px;
+  cursor: pointer; transition: var(--transition);
+  box-shadow: 0 2px 12px rgba(37,99,235,.08);
+}
+.ai-search-bar:hover {
+  box-shadow: 0 4px 20px rgba(37,99,235,.15);
+  border-color: rgba(37,99,235,.3);
+}
+.ai-search-bar .ai-icon {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #06b6d4);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 14px; flex-shrink: 0;
+  animation: aiPulse 2.5s ease-in-out infinite;
+}
+@keyframes aiPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,.4); }
+  50% { box-shadow: 0 0 0 8px rgba(37,99,235,0); }
+}
+.ai-search-bar .ai-placeholder {
+  flex: 1; font-size: 13px; color: #64748b; font-weight: 500;
+}
+.ai-search-bar .ai-shortcut {
+  font-size: 10px; color: #94a3b8; background: rgba(255,255,255,.7);
+  padding: 3px 8px; border-radius: 6px; font-weight: 600;
+}
+.ai-dialog-overlay {
+  position: absolute; inset: 0; z-index: 50; background: #fff;
+  display: none; flex-direction: column;
+}
+.ai-dialog-overlay.open { display: flex; }
+.ai-dialog-header {
+  display: flex; align-items: center; padding: 8px 12px;
+  border-bottom: 1px solid #f1f5f9; flex-shrink: 0;
+}
+.ai-dialog-header button {
+  border: none; background: none; font-size: 18px; cursor: pointer;
+  padding: 6px 10px; border-radius: 8px; color: #475569; transition: .2s;
+}
+.ai-dialog-header button:hover { background: #f1f5f9; }
+.ai-dialog-header .ai-dialog-title {
+  font-size: 14px; font-weight: 700; margin-left: 4px; letter-spacing: -0.01em;
+}
+.ai-dialog-body {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 20px 24px; overflow-y: auto;
+}
+.ai-logo-area { text-align: center; margin-bottom: 20px; }
+.ai-logo {
+  width: 72px; height: 72px; border-radius: 22px;
+  background: linear-gradient(135deg, #0f2b46 0%, #2563eb 50%, #06b6d4 100%);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 10px; font-size: 32px; color: #fff;
+  box-shadow: 0 8px 30px rgba(37,99,235,.25);
+}
+.ai-logo-area .ai-brand {
+  font-size: 20px; font-weight: 800; letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #0f2b46, #2563eb);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.ai-logo-area .ai-slogan {
+  font-size: 11px; color: #94a3b8; margin-top: 4px; font-weight: 500;
+}
+.ai-categories {
+  display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap;
+  justify-content: center;
+}
+.ai-cat-tab {
+  padding: 6px 14px; border-radius: 100px; font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: var(--transition); white-space: nowrap;
+  background: #f1f5f9; color: #64748b; border: 1px solid transparent;
+}
+.ai-cat-tab:hover { background: #e2e8f0; }
+.ai-cat-tab.active {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  color: #2563eb; border-color: rgba(37,99,235,.2);
+}
+.ai-input-area { width: 100%; position: relative; }
+.ai-big-input {
+  width: 100%; min-height: 56px; max-height: 140px;
+  border: 2px solid #e2e8f0; border-radius: 20px;
+  padding: 14px 18px; font-size: 15px; outline: none;
+  font-family: inherit; resize: none; transition: var(--transition);
+  background: #f8fafc; line-height: 1.6;
+}
+.ai-big-input:focus {
+  border-color: #2563eb; background: #fff;
+  box-shadow: 0 0 0 4px rgba(37,99,235,.08), 0 8px 30px rgba(37,99,235,.08);
+}
+.ai-big-input::placeholder { color: #cbd5e1; }
+.ai-input-tools {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 10px;
+}
+.ai-tool-left { display: flex; gap: 4px; }
+.ai-tool-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: none;
+  background: #f1f5f9; cursor: pointer; font-size: 16px;
+  transition: var(--transition); display: flex; align-items: center;
+  justify-content: center; color: #64748b;
+}
+.ai-tool-btn:hover { background: #e2e8f0; color: #2563eb; }
+.ai-send-btn {
+  padding: 10px 24px; border-radius: 100px; border: none;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
+  transition: var(--transition); display: flex; align-items: center; gap: 6px;
+  box-shadow: 0 4px 16px rgba(37,99,235,.3);
+}
+.ai-send-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(37,99,235,.4); }
+.ai-suggestions {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px;
+  justify-content: center;
+}
+.ai-sugg-chip {
+  padding: 6px 14px; border-radius: 100px; font-size: 11px; cursor: pointer;
+  background: #fff; border: 1px solid #e2e8f0; color: #475569;
+  transition: var(--transition); font-weight: 500;
+}
+.ai-sugg-chip:hover { border-color: #2563eb; color: #2563eb; background: #f8faff; }
+.ai-thinking {
+  display: none; align-items: center; gap: 8px; padding: 12px 18px;
+  background: #f8fafc; border-radius: 16px; margin-top: 12px;
+  font-size: 12px; color: #64748b; width: 100%;
+}
+.ai-thinking.show { display: flex; }
+.ai-thinking-dots { display: flex; gap: 4px; }
+.ai-thinking-dots span {
+  width: 6px; height: 6px; border-radius: 50%; background: #2563eb;
+  animation: dotBounce 1.4s ease-in-out infinite;
+}
+.ai-thinking-dots span:nth-child(2) { animation-delay: .2s; }
+.ai-thinking-dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes dotBounce { 0%,80%,100% { transform:scale(.6);opacity:.4; } 40% { transform:scale(1);opacity:1; } }
+
+/* ========================================== PHONE CONTENT ========================================== */
+.phone-page { display: none; padding: 12px 14px; }
+.phone-page.active { display: block; }
+
+/* Search Bar */
+.search-bar {
+  display: flex; align-items: center; background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-radius: 100px; padding: 9px 16px; gap: 8px; margin-bottom: 14px;
+  border: 1px solid rgba(0,0,0,.04); box-shadow: var(--shadow-sm);
+}
+.search-bar input {
+  flex:1; border:none; outline:none; font-size:13px; background:transparent;
+  color: var(--text-1);
+}
+.search-bar input::placeholder { color: var(--text-3); }
+.search-bar .icon { color: var(--text-3); flex-shrink: 0; font-size: 14px; }
+
+/* Banner */
+.banner {
+  border-radius: var(--radius-lg); height: 112px; overflow: hidden; margin-bottom: 14px;
+  background: linear-gradient(135deg, #0f2b46 0%, #1a4a78 40%, #1e5a9e 100%);
+  display: flex; align-items: center; padding: 0 22px; color: #fff; position: relative;
+}
+.banner::after {
+  content: ''; position: absolute; right: -20px; top: -30px;
+  width: 140px; height: 140px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(6,182,212,.25) 0%, transparent 70%);
+}
+.banner h3 { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; position: relative; z-index: 1; }
+.banner p { font-size: 11px; opacity: 0.8; margin-top: 4px; position: relative; z-index: 1; font-weight: 400; }
+.banner-dots {
+  position: absolute; bottom: 12px; left: 24px;
+  display: flex; gap: 6px; z-index: 1;
+}
+.banner-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.35);
+  transition: var(--transition);
+}
+.banner-dot.active { background: #fff; width: 18px; border-radius: 100px; }
+
+/* Grid Icons */
+.grid-9 {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px;
+}
+.grid-item {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  background: #fff; border-radius: var(--radius); padding: 14px 6px;
+  cursor: pointer; transition: var(--transition);
+  box-shadow: var(--shadow-sm); border: 1px solid rgba(0,0,0,.03);
+  position: relative; overflow: hidden;
+}
+.grid-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(37,99,235,.15);
+}
+.grid-item::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(37,99,235,0) 0%, rgba(37,99,235,.02) 100%);
+  opacity: 0; transition: var(--transition);
+}
+.grid-item:hover::after { opacity: 1; }
+.grid-item .gi-icon {
+  width: 44px; height: 44px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+  transition: var(--transition);
+}
+.grid-item:hover .gi-icon { transform: scale(1.08); }
+.grid-item .gi-label { font-size: 11px; color: var(--text-2); font-weight: 500; }
+
+/* Card */
+.card {
+  background: #fff; border-radius: var(--radius); padding: 16px;
+  margin-bottom: 10px; box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0,0,0,.03); transition: var(--transition);
+}
+.card:hover { box-shadow: var(--shadow); }
+.card-title { font-size: 14px; font-weight: 700; margin-bottom: 10px; color: var(--text-1); letter-spacing: -0.01em; }
+
+/* Form */
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 13px; font-weight: 600; color: var(--text-1); margin-bottom: 5px; display: block; letter-spacing: -0.01em; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 11px 14px; font-size: 13px; outline: none; transition: var(--transition);
+  font-family: inherit; background: #f8fafc;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+  background: #fff;
+}
+.form-textarea { resize: vertical; min-height: 80px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 11px 22px; border-radius: 100px; font-size: 14px; font-weight: 600;
+  cursor: pointer; border: none; transition: var(--transition); font-family: inherit;
+  letter-spacing: -0.01em;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #1a4a78 0%, #2563eb 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(37,99,235,.25);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37,99,235,.35);
+}
+.btn-outline {
+  background: #fff; color: var(--primary); border: 1.5px solid var(--border);
+}
+.btn-outline:hover { border-color: var(--primary); background: var(--primary-bg); }
+.btn-accent {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  color: #7c2d12; box-shadow: 0 2px 8px rgba(245,158,11,.25);
+}
+.btn-accent:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,158,11,.35); }
+.btn-sm { padding: 7px 16px; font-size: 12px; border-radius: 100px; }
+.btn-block { width: 100%; justify-content: center; }
+.btn-group { display: flex; gap: 8px; }
+
+/* Tag / Badge - Modern pill style */
+.tag {
+  display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 100px;
+  font-size: 11px; font-weight: 600; letter-spacing: -0.01em;
+}
+.tag-primary { background: #eff6ff; color: #2563eb; }
+.tag-success { background: var(--success-bg); color: #059669; }
+.tag-warning { background: var(--warning-bg); color: #d97706; }
+.tag-danger { background: var(--danger-bg); color: #dc2626; }
+.tag-info { background: var(--cyan-bg); color: #0891b2; }
+
+/* Chat bubbles */
+.chat-list { display: flex; flex-direction: column; gap: 14px; }
+.chat-msg { display: flex; gap: 8px; max-width: 92%; }
+.chat-msg.user { align-self: flex-end; flex-direction: row-reverse; }
+.chat-msg.ai { align-self: flex-start; }
+.chat-avatar {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+.chat-avatar.user-av { background: linear-gradient(135deg, #2563eb, #1a4a78); }
+.chat-avatar.ai-av { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+.chat-bubble {
+  padding: 11px 15px; border-radius: 18px; font-size: 13px; line-height: 1.55;
+}
+.chat-msg.user .chat-bubble {
+  background: linear-gradient(135deg, #2563eb 0%, #1e5a9e 100%);
+  color: #fff; border-bottom-right-radius: 8px;
+  box-shadow: 0 2px 12px rgba(37,99,235,.2);
+}
+.chat-msg.ai .chat-bubble {
+  background: #fff; color: var(--text-1); border-bottom-left-radius: 8px;
+  box-shadow: var(--shadow-sm); border: 1px solid rgba(0,0,0,.04);
+}
+.chat-source {
+  font-size: 10px; color: var(--text-3); margin-top: 4px;
+  background: rgba(6,182,212,.05); padding: 4px 8px; border-radius: 6px;
+  display: inline-block;
+}
+.chat-input-bar {
+  display: flex; gap: 8px; padding: 10px 0; align-items: center;
+  background: #fff; border-top: 1px solid var(--border-light);
+  margin-top: auto; padding: 12px 0 0;
+}
+.chat-input-bar input {
+  flex: 1; border: 1.5px solid var(--border); border-radius: 100px;
+  padding: 10px 16px; font-size: 13px; outline: none; font-family: inherit;
+  background: #f8fafc; transition: var(--transition);
+}
+.chat-input-bar input:focus { border-color: #2563eb; background: #fff; }
+
+/* Task / List items */
+.list-item {
+  display: flex; align-items: center; gap: 12px; padding: 14px;
+  background: #fff; border-radius: var(--radius); margin-bottom: 8px;
+  cursor: pointer; transition: var(--transition);
+  box-shadow: var(--shadow-sm); border: 1px solid rgba(0,0,0,.02);
+}
+.list-item:hover { transform: translateY(-1px); box-shadow: var(--shadow); border-color: rgba(37,99,235,.1); }
+.list-item .li-avatar {
+  width: 42px; height: 42px; border-radius: var(--radius-sm); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+}
+.list-item .li-body { flex: 1; min-width: 0; }
+.list-item .li-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+.list-item .li-meta { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+
+/* Task detail expanded */
+.list-detail { display: none; padding: 10px 0 4px 54px; }
+.list-item.expanded .list-detail { display: block; }
+.detail-row { display: flex; gap: 20px; font-size: 11px; color: var(--text-2); margin-bottom: 4px; }
+.detail-row span:first-child { color: var(--text-3); min-width: 48px; }
+
+/* Phone section header */
+.sec-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.sec-header h4 { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+.sec-header .more { font-size: 12px; color: #2563eb; cursor: pointer; font-weight: 500; }
+
+/* ========================================== 舆情预警 ========================================== */
+.sentiment-overview { display: flex; gap: 8px; margin-bottom: 12px; }
+.sentiment-bar {
+  flex: 1; text-align: center; border-radius: var(--radius); padding: 12px 8px;
+  color: #fff; font-weight: 700;
+}
+.sentiment-bar.neg { background: linear-gradient(135deg,#ef4444,#dc2626); }
+.sentiment-bar.warn { background: linear-gradient(135deg,#f59e0b,#d97706); }
+.sentiment-bar.pos { background: linear-gradient(135deg,#10b981,#059669); }
+.sentiment-bar .sb-num { font-size: 26px; line-height: 1; }
+.sentiment-bar .sb-label { font-size: 10px; opacity: .85; margin-top: 4px; }
+
+.alert-card {
+  background: #fff; border-radius: var(--radius); padding: 14px;
+  margin-bottom: 8px; box-shadow: var(--shadow-sm); cursor: pointer;
+  border-left: 4px solid #e2e8f0; transition: var(--transition);
+  position: relative;
+}
+.alert-card:hover { box-shadow: var(--shadow); }
+.alert-card.level-red { border-left-color: #ef4444; background: #fff5f5; }
+.alert-card.level-orange { border-left-color: #f59e0b; background: #fffdf5; }
+.alert-card.level-yellow { border-left-color: #eab308; background: #fffef5; }
+.alert-card .ac-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.alert-card .ac-level {
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 100px;
+}
+.ac-level.red { background: #fef2f2; color: #dc2626; }
+.ac-level.orange { background: #fff7ed; color: #ea580c; }
+.ac-level.yellow { background: #fefce8; color: #ca8a04; }
+.alert-card .ac-title { font-size: 13px; font-weight: 700; flex: 1; }
+.alert-card .ac-time { font-size: 10px; color: var(--text-3); }
+.alert-card .ac-body { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+.alert-detail { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-light); }
+.alert-card.expanded .alert-detail { display: block; }
+.alert-detail .ad-row { display: flex; gap: 16px; font-size: 11px; margin-bottom: 4px; }
+.alert-detail .ad-row span:first-child { color: var(--text-3); min-width: 52px; }
+.alert-actions { display: flex; gap: 6px; margin-top: 10px; }
+.alert-actions button {
+  padding: 5px 14px; border-radius: 100px; font-size: 11px; cursor: pointer;
+  border: none; font-weight: 600; transition: var(--transition);
+}
+.alert-actions .btn-handle { background: #2563eb; color: #fff; }
+.alert-actions .btn-ignore { background: #f1f5f9; color: #64748b; }
+.alert-actions .btn-escalate { background: #fef2f2; color: #dc2626; }
+
+.keyword-cloud { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.kw-tag {
+  padding: 4px 10px; border-radius: 100px; font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: var(--transition);
+}
+.kw-tag.hot { background: #fef2f2; color: #dc2626; font-size: 14px; font-weight: 700; }
+.kw-tag.warm { background: #fff7ed; color: #ea580c; font-size: 12px; font-weight: 600; }
+.kw-tag.normal { background: #f1f5f9; color: #475569; }
+
+.trend-mini { display: flex; align-items: flex-end; gap: 3px; height: 60px; padding: 4px 0; }
+.trend-bar {
+  flex: 1; border-radius: 3px 3px 0 0; min-width: 8px;
+  transition: var(--transition); cursor: pointer;
+  position: relative;
+}
+.trend-bar:hover { opacity: .8; transform: scaleY(1.05); }
+.trend-bar.rise { background: linear-gradient(180deg,#ef4444,#fca5a5); }
+.trend-bar.stable { background: linear-gradient(180deg,#f59e0b,#fcd34d); }
+.trend-bar.fall { background: linear-gradient(180deg,#10b981,#6ee7b7); }
+
+/* ========================================== TAB3: BACKEND ========================================== */
+.backend-layout { display: flex; min-height: calc(100vh - 56px); position: relative; z-index: 1; }
+.backend-sidebar {
+  width: 230px; background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(0,0,0,.04);
+  padding: 20px 0; flex-shrink: 0;
+}
+.sidebar-title {
+  padding: 0 20px 20px; font-size: 15px; font-weight: 800; color: var(--primary);
+  border-bottom: 1px solid var(--border-light); letter-spacing: -0.02em;
+}
+/* WorkBuddy 品牌头 */
+.wb-brand { padding: 0 16px 16px; border-bottom: 1px solid var(--border-light); }
+.wb-brand-logo { display:flex; align-items:center; gap:9px; }
+.wb-brand-logo .wb-mark {
+  width:36px; height:36px; border-radius:11px; flex:none;
+  background: linear-gradient(135deg,#0f2b46 0%,#2563eb 55%,#06b6d4 100%);
+  display:grid; place-items:center; font-size:18px; color:#fff;
+  box-shadow:0 4px 12px rgba(37,99,235,.28);
+}
+.wb-brand-logo .wb-tt { line-height:1.2; }
+.wb-brand-logo .wb-tt b { font-size:15px; font-weight:900; color:#0f2b46; letter-spacing:-.02em; display:block; }
+.wb-brand-logo .wb-tt small { font-size:10px; color:#2563eb; font-weight:700; }
+.wb-role-card {
+  margin-top:12px; background:linear-gradient(135deg,#eff6ff,#e0ecff); border:1px solid rgba(37,99,235,.12);
+  border-radius:12px; padding:9px 11px; display:flex; align-items:center; gap:9px;
+}
+.wb-role-card .rc-av { width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,#2563eb,#06b6d4); display:grid; place-items:center; font-size:14px; color:#fff; flex:none; }
+.wb-role-card .rc-tt b { font-size:12px; color:#1e293b; display:block; font-weight:700; }
+.wb-role-card .rc-tt small { font-size:10px; color:#64748b; }
+
+/* WorkBuddy AI 中枢能力横幅（管理端看板） */
+.wb-hero-banner {
+  position:relative; border-radius:var(--radius-xl); padding:22px 26px; margin-bottom:22px; overflow:hidden;
+  background:linear-gradient(120deg,#0f2b46 0%,#1d4e89 45%,#2563eb 100%); color:#fff;
+  box-shadow:0 16px 40px rgba(15,43,70,.28);
+}
+.wb-hero-banner::after {
+  content:''; position:absolute; right:-40px; top:-40px; width:220px; height:220px; border-radius:50%;
+  background:radial-gradient(circle,rgba(6,182,212,.5),transparent 70%);
+}
+.wb-hb-top { display:flex; align-items:center; gap:12px; position:relative; z-index:2; }
+.wb-hb-top .hb-mark { width:46px; height:46px; border-radius:14px; background:rgba(255,255,255,.16); display:grid; place-items:center; font-size:24px; flex:none; backdrop-filter:blur(6px); }
+.wb-hb-top h3 { font-size:19px; font-weight:900; letter-spacing:-.01em; }
+.wb-hb-top p { font-size:12px; opacity:.85; margin-top:3px; }
+.wb-hb-caps { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:18px; position:relative; z-index:2; }
+.wb-cap { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16); border-radius:14px; padding:13px 15px; backdrop-filter:blur(6px); }
+.wb-cap .cap-t { font-size:13px; font-weight:800; display:flex; align-items:center; gap:6px; }
+.wb-cap .cap-d { font-size:11px; opacity:.82; margin-top:5px; line-height:1.55; }
+.wb-cap .cap-badge { display:inline-block; margin-top:8px; font-size:10px; font-weight:700; background:rgba(6,182,212,.3); color:#a5f3fc; padding:2px 8px; border-radius:8px; }
+.sidebar-nav { padding: 10px 12px; }
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px; padding: 11px 14px;
+  border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; font-weight: 500;
+  color: var(--text-2); transition: var(--transition); margin-bottom: 3px;
+}
+.sidebar-item:hover { background: rgba(37,99,235,.05); color: var(--primary); }
+.sidebar-item.active {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  color: #2563eb; font-weight: 700;
+  box-shadow: 0 1px 3px rgba(37,99,235,.08);
+}
+.sidebar-icon { width: 20px; text-align: center; flex-shrink: 0; font-size: 15px; }
+.backend-main { flex: 1; padding: 28px; overflow-y: auto; background: transparent; }
+.backend-page { display: none; }
+.backend-page.active { display: block; }
+
+/* Stats cards */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }
+.stat-card {
+  background: #fff; border-radius: var(--radius-lg); padding: 20px 22px;
+  box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 16px;
+  border: 1px solid rgba(0,0,0,.03); transition: var(--transition);
+  position: relative; overflow: hidden;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.stat-card::before {
+  content: ''; position: absolute; top: -20px; right: -20px;
+  width: 80px; height: 80px; border-radius: 50%; opacity: 0.06;
+  transition: var(--transition);
+}
+.stat-card:hover::before { opacity: 0.1; }
+.stat-card.appeals::before { background: #2563eb; }
+.stat-card.rate::before { background: #10b981; }
+.stat-card.suggestions::before { background: #f59e0b; }
+.stat-card.qa::before { background: #06b6d4; }
+.stat-icon {
+  width: 52px; height: 52px; border-radius: var(--radius); display: flex;
+  align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
+}
+.stat-icon.blue { background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #2563eb; }
+.stat-icon.amber { background: linear-gradient(135deg, #fffbeb, #fef3c7); color: #d97706; }
+.stat-icon.green { background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #059669; }
+.stat-icon.cyan { background: linear-gradient(135deg, #ecfeff, #cffafe); color: #0891b2; }
+.stat-info .stat-val { font-size: 26px; font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; }
+.stat-info .stat-trend { font-size: 11px; margin-top: 3px; font-weight: 600; }
+.stat-trend.up { color: #10b981; }
+.stat-trend.down { color: #ef4444; }
+.stat-info .stat-label { font-size: 11px; color: var(--text-3); font-weight: 500; }
+
+/* Chart containers */
+.chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; margin-bottom: 18px; }
+.chart-row.equal { grid-template-columns: 1fr 1fr; }
+.chart-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+.chart-box {
+  background: #fff; border-radius: var(--radius-lg); padding: 20px;
+  box-shadow: var(--shadow-sm); border: 1px solid rgba(0,0,0,.03);
+  transition: var(--transition);
+}
+.chart-box:hover { box-shadow: var(--shadow); }
+.chart-box h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.01em; }
+.chart-inner { width: 100%; height: 270px; }
+.chart-inner.sm { height: 220px; }
+
+/* Table */
+.data-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid rgba(0,0,0,.03); }
+.data-table th {
+  background: #f8fafc; padding: 13px 18px; text-align: left; font-size: 11px;
+  font-weight: 700; color: var(--text-2); border-bottom: 1.5px solid var(--border);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.data-table td { padding: 13px 18px; font-size: 13px; border-bottom: 1px solid var(--border-light); }
+.data-table tr:hover td { background: #f8fafc; }
+
+/* Knowledge tree */
+.kb-layout { display: flex; gap: 18px; }
+.kb-tree {
+  width: 200px; background: #fff; border-radius: var(--radius-lg);
+  padding: 14px 0; box-shadow: var(--shadow-sm); flex-shrink: 0; border: 1px solid rgba(0,0,0,.03);
+}
+.kb-tree-item {
+  padding: 9px 18px; cursor: pointer; font-size: 13px; color: var(--text-2); font-weight: 500;
+  transition: var(--transition); display: flex; align-items: center; gap: 7px;
+}
+.kb-tree-item:hover { background: rgba(37,99,235,.04); color: var(--primary); }
+.kb-tree-item.active {
+  background: linear-gradient(90deg, #eff6ff, transparent);
+  color: #2563eb; font-weight: 700;
+  border-right: 3px solid #2563eb;
+}
+.kb-list { flex: 1; }
+
+/* Page header */
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px;
+}
+.page-header h3 { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+
+/* ========================================== TAB4: ENTERPRISE WECHAT ========================================== */
+.wework-wrap {
+  display: flex; justify-content: center; padding: 20px;
+  min-height: calc(100vh - 56px);
+}
+.wework-app {
+  width: 960px; height: 640px;
+  background: #fff; border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.04);
+  overflow: hidden; display: flex;
+  border: 1px solid rgba(0,0,0,.06);
+}
+.wework-nav {
+  width: 60px; background: #2E3238;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 16px 0; gap: 6px; flex-shrink: 0;
+}
+.wework-nav .wn-avatar {
+  width: 34px; height: 34px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px; font-weight: 700; margin-bottom: 12px;
+  background: #267EF0; cursor: pointer;
+}
+.wework-nav .wn-icon {
+  width: 36px; height: 36px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  color: #8B9097; font-size: 18px; cursor: pointer; transition: .2s;
+  position: relative;
+}
+.wework-nav .wn-icon:hover { color: #d0d3d8; background: rgba(255,255,255,.06); }
+.wework-nav .wn-icon.active { color: #fff; background: rgba(255,255,255,.1); }
+.wework-nav .wn-icon .wn-dot {
+  position: absolute; top: 6px; right: 6px; width: 7px; height: 7px;
+  border-radius: 50%; background: #f54a45;
+}
+
+.wework-panel-list {
+  width: 250px; background: #F7F7F8; border-right: 1px solid #E6E6E8;
+  display: flex; flex-direction: column; flex-shrink: 0;
+}
+.wework-panel-list .wpl-search {
+  padding: 14px 16px;
+}
+.wework-panel-list .wpl-search input {
+  width: 100%; border: none; background: #E8E8EA; border-radius: 6px;
+  padding: 7px 12px; font-size: 12px; outline: none; font-family: inherit;
+}
+.wework-panel-list .wpl-search input::placeholder { color: #999; }
+.wework-panel-list .wpl-tabs {
+  display: flex; padding: 0 16px 10px; gap: 0;
+  font-size: 13px; font-weight: 500; color: #999;
+}
+.wework-panel-list .wpl-tabs span {
+  padding: 4px 12px; cursor: pointer; border-radius: 4px; transition: .2s;
+}
+.wework-panel-list .wpl-tabs span.active { color: #267EF0; background: rgba(38,126,240,.08); }
+.wework-group-list { flex: 1; overflow-y: auto; }
+.wework-group-item {
+  display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+  cursor: pointer; transition: .15s; border-left: 3px solid transparent;
+}
+.wework-group-item:hover { background: #EEEEF0; }
+.wework-group-item.active { background: #E3E5E8; border-left-color: #267EF0; }
+.wework-group-avatar {
+  width: 40px; height: 40px; border-radius: 6px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: #fff; font-weight: 700;
+}
+.wework-group-info { flex: 1; min-width: 0; }
+.wework-group-name { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+.wework-group-name .at { color: #267EF0; }
+.wework-group-preview {
+  font-size: 11px; color: #999; margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.wework-badge {
+  background: #f54a45; color: #fff; font-size: 10px; min-width: 18px;
+  height: 18px; border-radius: 9px; display: flex; align-items: center;
+  justify-content: center; padding: 0 5px; font-weight: 600; flex-shrink: 0;
+}
+
+.wework-chat {
+  flex: 1; display: flex; flex-direction: column; background: #F5F6F7;
+}
+.wework-chat-header {
+  padding: 14px 20px; background: #fff; border-bottom: 1px solid #E8E8EA;
+  font-size: 15px; font-weight: 600; color: #1a1a1a; flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+}
+.wework-chat-body {
+  flex: 1; overflow-y: auto; padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.wework-chat-input {
+  padding: 12px 20px; background: #fff; border-top: 1px solid #E8E8EA;
+  display: flex; gap: 10px; align-items: center; flex-shrink: 0;
+}
+.wework-chat-input .wci-tools {
+  display: flex; gap: 4px; color: #8B9097; font-size: 18px;
+}
+.wework-chat-input input {
+  flex: 1; border: none; outline: none; font-size: 13px; font-family: inherit;
+  padding: 8px 0; background: transparent;
+}
+.wework-chat-input input::placeholder { color: #b0b3b8; }
+.wework-chat-input .wci-send {
+  background: #267EF0; color: #fff; border: none; padding: 7px 20px;
+  border-radius: 4px; font-size: 13px; cursor: pointer; font-weight: 500;
+  transition: .2s;
+}
+.wework-chat-input .wci-send:hover { background: #1a6fd4; }
+
+/* WeWork chat messages */
+.ww-msg { display: flex; gap: 10px; max-width: 75%; }
+.ww-msg.mine { align-self: flex-end; flex-direction: row-reverse; }
+.ww-msg-avatar {
+  width: 34px; height: 34px; border-radius: 4px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+}
+.ww-msg-bubble {
+  padding: 10px 14px; border-radius: 6px; font-size: 13px; line-height: 1.6;
+  word-break: break-word;
+}
+.ww-msg:not(.mine) .ww-msg-bubble { background: #fff; color: #1a1a1a; }
+.ww-msg.mine .ww-msg-bubble { background: #D9EBFF; color: #1a1a1a; }
+.ww-msg-time { font-size: 10px; color: #b0b3b8; margin-top: 2px; }
+
+/* AI card inside chat */
+.ww-ai-card {
+  background: #fff; border-radius: 6px; padding: 14px; margin: 6px 0;
+  border-left: 3px solid #267EF0; box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+.ww-ai-card .original-msg {
+  font-size: 12px; color: #666; background: #F7F7F8; padding: 8px 12px;
+  border-radius: 4px; margin-bottom: 10px; line-height: 1.5;
+}
+.ww-ai-card .ai-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.ww-ai-card .ai-tag {
+  font-size: 11px; padding: 3px 8px; border-radius: 3px; font-weight: 500;
+}
+.ai-tag.intent { background: #FFF3E0; color: #E65100; }
+.ai-tag.category { background: #E3F2FD; color: #1565C0; }
+.ai-tag.status { background: #E8F5E9; color: #2E7D32; }
+.ai-tag.person { background: #F3E5F5; color: #7B1FA2; }
+
+/* Notification list inside chat */
+.ww-notify-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: #fff; border-radius: 6px; padding: 14px 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04); cursor: pointer; transition: .15s;
+}
+.ww-notify-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.ww-notify-icon {
+  width: 36px; height: 36px; border-radius: 4px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.ww-notify-info { flex: 1; min-width: 0; }
+.ww-notify-title { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+.ww-notify-meta { font-size: 11px; color: #999; margin-top: 3px; }
+.ww-notify-actions { flex-shrink: 0; }
+.ww-notify-actions button {
+  border: 1px solid #ddd; background: #fff; padding: 5px 12px;
+  border-radius: 3px; font-size: 11px; cursor: pointer; color: #666; transition: .15s;
+}
+.ww-notify-actions button:hover { background: #f5f5f5; border-color: #ccc; }
+
+/* ========================================== MISC ========================================== */
+.text-center { text-align: center; }
+.mt-2 { margin-top: 8px; } .mt-3 { margin-top: 12px; } .mt-4 { margin-top: 16px; }
+.mb-2 { margin-bottom: 8px; } .mb-4 { margin-bottom: 16px; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.profile-header { text-align: center; padding: 20px 0; }
+.profile-avatar {
+  width: 68px; height: 68px; border-radius: 50%; margin: 0 auto 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 30px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.15);
+}
+.profile-name { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.profile-role { font-size: 12px; opacity: .75; margin-top: 4px; font-weight: 500; }
+.profile-stats { display: flex; gap: 0; margin: 14px 0; }
+.profile-stat { flex: 1; text-align: center; padding: 12px 0; }
+.profile-stat .ps-val { font-size: 22px; font-weight: 800; color: #2563eb; letter-spacing: -0.02em; }
+.profile-stat .ps-label { font-size: 11px; color: var(--text-3); margin-top: 2px; font-weight: 500; }
+.menu-row { display: flex; flex-direction: column; gap: 2px; }
+.menu-item {
+  display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+  background: #fff; cursor: pointer; transition: var(--transition); font-size: 14px; font-weight: 500;
+  border-radius: var(--radius-sm);
+}
+.menu-item:hover { background: #f8fafc; }
+.menu-item .mi-arrow { margin-left: auto; color: var(--text-4); font-size: 16px; }
+.voice-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px; border: 1.5px dashed #2563eb; border-radius: var(--radius-sm);
+  color: #2563eb; font-size: 13px; cursor: pointer; transition: var(--transition);
+  font-weight: 500;
+}
+.voice-btn:hover { background: #eff6ff; }
+.upload-area {
+  border: 1.5px dashed var(--border); border-radius: var(--radius-sm); padding: 18px;
+  text-align: center; color: var(--text-3); font-size: 12px; cursor: pointer;
+  transition: var(--transition); font-weight: 500;
+}
+.upload-area:hover { border-color: #2563eb; color: #2563eb; background: #f8fafc; }
+
+/* ========================================== RESPONSIVE ========================================== */
+@media (max-width: 1024px) {
+  .tab-btn { padding: 12px 14px; font-size: 12px; }
+  .tab-bar::before { display: none; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .tab-btn { padding: 10px 8px; font-size: 11px; }
+  .tab-btn .badge { display: none; }
+  .backend-layout { flex-direction: column; }
+  .backend-sidebar { width: 100%; display: flex; overflow-x: auto; padding: 8px 12px; }
+  .sidebar-nav { display: flex; gap: 4px; flex-direction: row; flex-wrap: nowrap; }
+  .sidebar-item { white-space: nowrap; flex-shrink: 0; font-size: 12px; padding: 8px 12px; }
+  .sidebar-title { display: none; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .chart-row, .chart-row.equal, .chart-row.triple { grid-template-columns: 1fr; }
+  .wework-app { width: 100%; height: auto; border-radius: 0; flex-direction: column; }
+  .wework-nav { width: 100%; flex-direction: row; padding: 8px 12px; gap: 8px; overflow-x: auto; }
+  .wework-panel-list { width: 100%; }
+  .wework-chat { min-height: 400px; }
+  .kb-layout { flex-direction: column; }
+  .kb-tree { width: 100%; display: flex; overflow-x: auto; flex-direction: row; padding: 8px; }
+  .kb-tree-item { white-space: nowrap; flex-shrink: 0; padding: 6px 12px; border-right: none; }
+}
+
+/* ========================================== 泉小新 3D 人物形象 ========================================== */
+.qxx-hero {
+  position: relative; margin: -4px -2px 14px; padding: 16px 18px 14px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, #fff2e6 0%, #ffe6d2 45%, #ffd9be 100%);
+  overflow: hidden; box-shadow: 0 8px 26px rgba(249,115,22,.12);
+}
+.qxx-hero::before {
+  content:''; position:absolute; right:-30px; top:-30px; width:180px; height:180px;
+  border-radius:50%; border:30px solid rgba(255,255,255,.28); pointer-events:none;
+}
+.qxx-hero::after {
+  content:''; position:absolute; left:-24px; bottom:-40px; width:120px; height:120px;
+  border-radius:50%; background:rgba(255,255,255,.22); pointer-events:none;
+}
+.qxx-hero-inner { position:relative; z-index:2; display:flex; align-items:center; gap:12px; }
+.qxx-hero-text { flex:1; }
+.qxx-hero-badge {
+  display:inline-flex; align-items:center; gap:5px; background:#fff; color:#e8823a;
+  font-size:10.5px; font-weight:700; padding:4px 10px; border-radius:100px;
+  box-shadow:0 4px 10px rgba(249,115,22,.14); margin-bottom:8px;
+}
+.qxx-hero-badge .dot { width:6px; height:6px; border-radius:50%; background:#f97316; }
+.qxx-hero-text h2 { font-size:20px; font-weight:900; color:#5a3418; letter-spacing:.5px; }
+.qxx-hero-text h2 .wave { display:inline-block; animation:qxxWave 2.2s ease-in-out infinite; transform-origin:70% 70%; }
+@keyframes qxxWave { 0%,60%,100%{transform:rotate(0);} 15%{transform:rotate(16deg);} 30%{transform:rotate(-8deg);} 45%{transform:rotate(14deg);} }
+.qxx-hero-text p { font-size:12px; color:#a5673a; margin-top:5px; font-weight:600; line-height:1.5; }
+.qxx-hero-img { width:118px; flex:none; margin:-14px -6px -14px 0; }
+.qxx-hero-img img { width:100%; display:block; filter:drop-shadow(0 12px 18px rgba(180,100,50,.28)); cursor:pointer; transition:transform .2s; }
+.qxx-hero-img img:active { transform:scale(.95); }
+
+/* AI对话 logo 换成人物头像 */
+.ai-logo.qxx-face { background:#fff !important; padding:0; overflow:hidden; }
+.ai-logo.qxx-face img { width:100%; height:100%; object-fit:cover; object-position:top center; }
+/* 对话气泡人物头像 */
+.chat-avatar.qxx-face { background:#fff !important; overflow:hidden; padding:0; color:transparent; }
+.chat-avatar.qxx-face img { width:100%; height:100%; object-fit:cover; object-position:top center; }
+</style>
+</head>
+<body>
+
+<!-- ========================================== TOP TAB BAR ========================================== -->
+<nav class="tab-bar" id="mainTabBar">
+  <button class="tab-btn active" data-tab="tab-citizen">
+    📱 新就业群体端<span class="badge">微信小程序</span>
+  </button>
+  <button class="tab-btn" data-tab="tab-staff">
+    💼 工作人员端<span class="badge">微信小程序</span>
+  </button>
+  <button class="tab-btn" data-tab="tab-admin">
+    🧩 WorkBuddy 管理端<span class="badge">AI中枢·SaaS</span>
+  </button>
+  <button class="tab-btn" data-tab="tab-wework">
+    🤖 企业微信AI助手
+  </button>
+</nav>
+
+<!-- ========================================== TAB1: 新就业群体端 ========================================== -->
+<div class="tab-content active" id="tab-citizen">
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+      <div class="phone-status"><span>9:41</span><span>泉小新</span><span>⚡📶🔋</span></div>
+      <div class="phone-body" id="citizenBody">
+        <!-- 首页 -->
+        <div class="phone-page active" data-page="home">
+          <!-- 泉小新 3D 人物形象英雄区 -->
+          <div class="qxx-hero">
+            <div class="qxx-hero-inner">
+              <div class="qxx-hero-text">
+                <span class="qxx-hero-badge"><span class="dot"></span>AI 泉小新 · 为您服务</span>
+                <h2>您好，骑手小哥 <span class="wave">👋</span></h2>
+                <p>诉求、政策、办事，跟我说一句，我帮您办</p>
+              </div>
+              <div class="qxx-hero-img">
+                <img src="assets/hero-wave.png" id="qxxHeroImg" onclick="qxxWaveHello()" alt="泉小新">
+              </div>
+            </div>
+          </div>
+          <!-- AI智能搜索条 -->
+          <div class="ai-search-bar" onclick="openAIDialog('citizen')">
+            <div class="ai-icon">✨</div>
+            <span class="ai-placeholder">AI智能服务 · 问我任何问题...</span>
+            <span class="ai-shortcut">⌘K</span>
+          </div>
+          <!-- AI全屏对话浮层 -->
+          <div class="ai-dialog-overlay" id="aiDialog-citizen">
+            <div class="ai-dialog-header">
+              <button onclick="closeAIDialog('citizen')">✕</button>
+              <span class="ai-dialog-title">AI智能服务</span>
+            </div>
+            <div class="ai-dialog-body">
+              <div class="ai-logo-area">
+                <div class="ai-logo qxx-face"><img src="assets/avatar.png" alt="泉小新"></div>
+                <div class="ai-brand">泉小新</div>
+                <div class="ai-slogan">AI智能服务平台 · 问什么都行，我来帮您办</div>
+              </div>
+              <div class="ai-categories" id="aiCats-citizen">
+                <span class="ai-cat-tab active" data-cat="all">全部</span>
+                <span class="ai-cat-tab" data-cat="appeal">报诉求</span>
+                <span class="ai-cat-tab" data-cat="suggest">提建议</span>
+                <span class="ai-cat-tab" data-cat="policy">查政策</span>
+                <span class="ai-cat-tab" data-cat="qa">智能问答</span>
+                <span class="ai-cat-tab" data-cat="service">办业务</span>
+              </div>
+              <div class="ai-input-area">
+                <textarea class="ai-big-input" placeholder="直接说出您想做什么，我帮您自动办理..." rows="1"></textarea>
+                <div class="ai-input-tools">
+                  <div class="ai-tool-left">
+                    <button class="ai-tool-btn">🎤</button>
+                    <button class="ai-tool-btn">📎</button>
+                    <button class="ai-tool-btn">📷</button>
+                  </div>
+                  <button class="ai-send-btn" onclick="handleAISend('citizen')">↑ 发送</button>
+                </div>
+              </div>
+              <div class="ai-thinking" id="aiThinking-citizen">
+                <div class="ai-thinking-dots"><span></span><span></span><span></span></div>
+                <span>正在分析您的需求...</span>
+              </div>
+              <div class="ai-suggestions">
+                <span class="ai-sugg-chip" onclick="fillAIPrompt('citizen','外卖员高温补贴怎么申请')"><span class="sugg-emoji">🔥</span>外卖员高温补贴怎么申请</span>
+                <span class="ai-sugg-chip" onclick="fillAIPrompt('citizen','我想反映平台派单距离太远')"><span class="sugg-emoji">📝</span>我想反映平台派单距离太远</span>
+                <span class="ai-sugg-chip" onclick="fillAIPrompt('citizen','泉新公寓还有空房吗')"><span class="sugg-emoji">🏠</span>泉新公寓还有空房吗</span>
+                <span class="ai-sugg-chip" onclick="fillAIPrompt('citizen','我的诉求办理到哪一步了')"><span class="sugg-emoji">📋</span>我的诉求办理到哪一步了</span>
+              </div>
+            </div>
+          </div>
+          <div class="banner" id="citizenBanner">
+            <div style="position:relative;z-index:1;">
+              <h3>泉心服务 · 暖心同行</h3>
+              <p>您的声音，我们用心倾听</p>
+            </div>
+            <div class="banner-dots"><span class="banner-dot active"></span><span class="banner-dot"></span><span class="banner-dot"></span></div>
+          </div>
+          <div class="grid-9">
+            <div class="grid-item" onclick="citizenNav('suggest')">
+              <div class="gi-icon" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);color:#2563eb;">💡</div>
+              <span class="gi-label">提建议</span>
+            </div>
+            <div class="grid-item" onclick="citizenNav('appeal')">
+              <div class="gi-icon" style="background:linear-gradient(135deg,#fef2f2,#fecaca);color:#dc2626;">📝</div>
+              <span class="gi-label">报诉求</span>
+            </div>
+            <div class="grid-item" onclick="citizenNav('qa')">
+              <div class="gi-icon" style="background:linear-gradient(135deg,#ecfeff,#cffafe);color:#0891b2;">🤖</div>
+              <span class="gi-label">智能问答</span>
+            </div>
+            <div class="grid-item" onclick="citizenNav('serviceDetail')">
+              <div class="gi-icon" style="background:linear-gradient(135deg,#fffbeb,#fef3c7);color:#d97706;">⭐</div>
+              <span class="gi-label">泉城星光</span>
+            </div>
+            <div class="grid-item" onclick="citizenNav('serviceDetail')">
+              <div class="gi-icon" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);color:#7c3aed;">🏠</div>
+              <span class="gi-label">泉新公寓</span>
+            </div>
+            <div class="grid-item" onclick="citizenNav('serviceDetail')">
+              <div class="gi-icon" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);color:#2563eb;">⚖️</div>
+              <span class="gi-label">法援在线</span>
+            </div>
+            <div class="grid-item" onclick="citizenNav('serviceDetail')">
+              <div class="gi-icon" style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);color:#059669;">🎉</div>
+              <span class="gi-label">公寓活动</span>
+            </div>
+            <div class="grid-item" onclick="citizenNav('serviceDetail')">
+              <div class="gi-icon" style="background:linear-gradient(135deg,#fef2f2,#fecaca);color:#dc2626;">🏆</div>
+              <span class="gi-label">星光榜样</span>
+            </div>
+          </div>
+          <!-- 泉心驿站 Banner -->
+          <div class="banner" onclick="citizenNav('stationMap')" style="cursor:pointer;background:linear-gradient(135deg,#f97316,#fb923c,#fbbf24);margin-bottom:14px;">
+            <div style="position:relative;z-index:1;">
+              <h3>🏠 泉心驿站 · 暖心服务阵地</h3>
+              <p>快递员、外卖骑手、网约车司机的专属驿站 — 全市32个站点为您服务</p>
+            </div>
+            <div style="position:absolute;right:12px;top:50%;transform:translateY(-50%);z-index:1;">
+              <span style="background:rgba(255,255,255,.25);color:#fff;padding:6px 14px;border-radius:100px;font-size:11px;font-weight:700;">📍 查看地图 ›</span>
+            </div>
+          </div>
+          <div class="card" onclick="citizenNav('messages')" style="cursor:pointer;">
+            <div class="flex-between mb-2">
+              <span style="font-weight:700;font-size:14px;">🔔 消息中心</span>
+              <span class="tag tag-danger" style="font-size:10px;">3条未读</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-2);line-height:2.2;">
+              <div style="display:flex;justify-content:space-between;"><span>📋 您的诉求「派单距离问题」已有回复</span><span style="color:var(--text-3);">10分钟前</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>🏠 泉新公寓新增200套房源开放申请</span><span style="color:var(--text-3);">2小时前</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>⭐ "泉城星光"技能培训报名开始</span><span style="color:var(--text-3);">昨天</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- 泉心驿站地图页 -->
+        <div class="phone-page" data-page="stationMap">
+          <div style="padding:4px 0 12px;display:flex;align-items:center;gap:8px;">
+            <button onclick="citizenNav('home')" style="border:none;background:none;cursor:pointer;font-size:16px;">←</button>
+            <span style="font-weight:700;font-size:15px;">🏠 泉心驿站</span>
+            <span class="tag tag-warning" style="margin-left:auto;">32个站点</span>
+          </div>
+          <!-- 模拟地图区域 -->
+          <div style="background:linear-gradient(135deg,#e8f0e3,#d5e8d0,#cde0d8);border-radius:var(--radius-lg);height:220px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:12px;">
+            <!-- 模拟地图纹理 -->
+            <div style="position:absolute;inset:0;opacity:.15;background:radial-gradient(circle at 30% 40%,#2b6cb0 1px,transparent 1px),radial-gradient(circle at 60% 30%,#2b6cb0 1px,transparent 1px),radial-gradient(circle at 45% 60%,#2b6cb0 1px,transparent 1px),radial-gradient(circle at 70% 55%,#f97316 1.5px,transparent 1.5px),radial-gradient(circle at 25% 65%,#f97316 1.5px,transparent 1.5px);background-size:80px 80px,100px 100px,90px 90px,120px 120px,110px 110px;"></div>
+            <!-- 模拟撒点 -->
+            <div style="position:absolute;top:25%;left:30%;z-index:2;text-align:center;">
+              <div style="width:18px;height:18px;background:#f97316;border-radius:50%;box-shadow:0 0 0 4px rgba(249,115,22,.3);margin:0 auto;animation:dotPing 2s infinite;"></div>
+              <div style="font-size:9px;color:#1a3c5e;font-weight:700;margin-top:2px;">大明湖站</div>
+            </div>
+            <div style="position:absolute;top:35%;left:60%;z-index:2;text-align:center;">
+              <div style="width:18px;height:18px;background:#f97316;border-radius:50%;box-shadow:0 0 0 4px rgba(249,115,22,.3);margin:0 auto;animation:dotPing 2s .4s infinite;"></div>
+              <div style="font-size:9px;color:#1a3c5e;font-weight:700;margin-top:2px;">泉城路站</div>
+            </div>
+            <div style="position:absolute;top:50%;left:45%;z-index:2;text-align:center;">
+              <div style="width:18px;height:18px;background:#f97316;border-radius:50%;box-shadow:0 0 0 4px rgba(249,115,22,.3);margin:0 auto;animation:dotPing 2s .8s infinite;"></div>
+              <div style="font-size:9px;color:#1a3c5e;font-weight:700;margin-top:2px;">趵突泉站</div>
+            </div>
+            <div style="position:absolute;top:20%;left:48%;z-index:2;text-align:center;">
+              <div style="width:14px;height:14px;background:#2b6cb0;border-radius:50%;box-shadow:0 0 0 4px rgba(43,108,176,.2);margin:0 auto;animation:dotPing 2.5s .3s infinite;"></div>
+              <div style="font-size:8px;color:#1a3c5e;font-weight:600;margin-top:2px;">千佛山站</div>
+            </div>
+            <div style="position:absolute;top:60%;left:25%;z-index:2;text-align:center;">
+              <div style="width:14px;height:14px;background:#2b6cb0;border-radius:50%;box-shadow:0 0 0 4px rgba(43,108,176,.2);margin:0 auto;animation:dotPing 2.5s .7s infinite;"></div>
+              <div style="font-size:8px;color:#1a3c5e;font-weight:600;margin-top:2px;">历下站</div>
+            </div>
+            <div style="position:relative;z-index:1;text-align:center;color:var(--text-3);">
+              <div style="font-size:36px;margin-bottom:4px;">🗺️</div>
+              <div style="font-size:12px;font-weight:600;color:var(--text-2);">点击可跳转腾讯地图查看</div>
+              <div style="font-size:10px;color:var(--text-3);">覆盖济南市历下区、市中区、槐荫区等</div>
+            </div>
+          </div>
+          <!-- 搜索 + 列表 -->
+          <div class="search-bar"><span class="icon">🔍</span><input type="text" placeholder="搜索驿站名称或地址..."></div>
+          <div class="sec-header"><h4>📍 附近驿站</h4><span class="more">距离排序 ›</span></div>
+          <div class="card" style="border-left:4px solid var(--warm);">
+            <div class="flex-between mb-2">
+              <span style="font-weight:700;font-size:14px;">🏠 泉心驿站 · 大明湖站</span>
+              <span class="tag tag-warning">1.2km</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-2);line-height:1.8;">📍 历下区大明湖路268号 · 24小时开放<br>🛠 饮水、充电、休息、微波炉、WiFi<br>👥 可容纳30人 · 当前空闲12位</div>
+          </div>
+          <div class="card" style="border-left:4px solid var(--warm);">
+            <div class="flex-between mb-2">
+              <span style="font-weight:700;font-size:14px;">🏠 泉心驿站 · 泉城路站</span>
+              <span class="tag tag-warning">2.5km</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-2);line-height:1.8;">📍 历下区泉城路188号 · 08:00-22:00<br>🛠 饮水、充电、休息、淋浴、洗衣<br>👥 可容纳50人 · 当前空闲23位</div>
+          </div>
+          <div class="card" style="border-left:4px solid var(--primary-light);">
+            <div class="flex-between mb-2">
+              <span style="font-weight:700;font-size:14px;">🏠 泉心驿站 · 趵突泉站</span>
+              <span class="tag" style="background:#f1f5f9;color:#64748b;">3.8km</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-2);line-height:1.8;">📍 历下区趵突泉南路6号 · 06:00-23:00<br>🛠 饮水、充电、休息、餐饮优惠、法律援助<br>👥 可容纳40人 · 当前空闲18位</div>
+          </div>
+        </div>
+        <!-- 提建议页 -->
+        <div class="phone-page" data-page="suggest">
+          <div style="padding:4px 0 12px;display:flex;align-items:center;gap:8px;">
+            <button onclick="citizenNav('home')" style="border:none;background:none;cursor:pointer;font-size:16px;">←</button>
+            <span style="font-weight:600;font-size:15px;">提建议</span>
+          </div>
+          <div class="card">
+            <div class="form-group">
+              <label class="form-label">建议类型</label>
+              <select class="form-select">
+                <option>请选择建议类型</option><option>政策建议</option><option>服务改进</option><option>设施建设</option><option>其他</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">建议内容</label>
+              <textarea class="form-textarea" placeholder="请详细描述您的建议..."></textarea>
+            </div>
+            <div class="upload-area mb-2">📷 点击上传图片（最多9张）</div>
+            <div class="voice-btn mb-2">🎤 语音输入</div>
+            <button class="btn btn-primary btn-block">提交建议</button>
+            <div style="font-size:10px;color:var(--text-3);margin-top:8px;">提交后建议将推送至「泉民建言」系统办理</div>
+          </div>
+        </div>
+        <!-- 报诉求页 -->
+        <div class="phone-page" data-page="appeal">
+          <div style="padding:4px 0 12px;display:flex;align-items:center;gap:8px;">
+            <button onclick="citizenNav('home')" style="border:none;background:none;cursor:pointer;font-size:16px;">←</button>
+            <span style="font-weight:600;font-size:15px;">报诉求</span>
+          </div>
+          <div class="card">
+            <div class="form-group">
+              <label class="form-label">诉求分类</label>
+              <select class="form-select">
+                <option>请选择诉求分类</option><option>劳务纠纷</option><option>社会保障</option><option>住房问题</option><option>子女教育</option><option>健康医疗</option><option>其他</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">诉求描述</label>
+              <textarea class="form-textarea" placeholder="请详细描述您遇到的困难和诉求..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">📍 位置信息</label>
+              <div class="form-input" style="color:var(--primary);cursor:pointer;">点击获取当前位置</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">紧急程度</label>
+              <div style="display:flex;gap:8px;">
+                <span class="tag tag-success" style="cursor:pointer;padding:6px 14px;">普通</span>
+                <span class="tag tag-warning" style="cursor:pointer;padding:6px 14px;">紧急</span>
+                <span class="tag tag-danger" style="cursor:pointer;padding:6px 14px;">非常紧急</span>
+              </div>
+            </div>
+            <button class="btn btn-accent btn-block">提交诉求</button>
+            <div style="font-size:10px;color:var(--text-3);margin-top:8px;">提交后诉求将推送至「民呼我应」系统，工作人员会尽快处理</div>
+          </div>
+        </div>
+        <!-- 智能问答页 -->
+        <div class="phone-page" data-page="qa">
+          <div style="padding:4px 0 12px;display:flex;align-items:center;gap:8px;">
+            <button onclick="citizenNav('home')" style="border:none;background:none;cursor:pointer;font-size:16px;">←</button>
+            <span style="font-weight:600;font-size:15px;">智能问答</span>
+          </div>
+          <div class="chat-list">
+            <div class="chat-msg ai">
+              <div class="chat-avatar ai-av qxx-face"><img src="assets/avatar.png" alt="泉小新"></div>
+              <div>
+                <div class="chat-bubble">您好！我是泉小新智能助手🤖 您可以问我关于政策法规、办事指南、就业服务等问题，我会尽力为您解答。</div>
+              </div>
+            </div>
+            <div class="chat-msg user">
+              <div class="chat-avatar user-av">我</div>
+              <div class="chat-bubble">外卖员可以申请公租房吗？需要什么条件？</div>
+            </div>
+            <div class="chat-msg ai">
+              <div class="chat-avatar ai-av qxx-face"><img src="assets/avatar.png" alt="泉小新"></div>
+              <div>
+                <div class="chat-bubble">根据济南市住房保障政策，外卖员等新就业形态劳动者可申请公共租赁住房。主要条件：<br>1. 在济南市稳定就业满6个月<br>2. 家庭人均可支配收入低于上年度城镇居民人均可支配收入的60%<br>3. 在市区无自有住房<br>具体可前往「泉新公寓」服务入口查看详情和在线申请。</div>
+                <div class="chat-source">📚 来源：济南市住房保障管理办法（2025修订版）· 市民服务指南</div>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-bar">
+            <input type="text" placeholder="输入您的问题...">
+            <button class="btn btn-primary btn-sm">发送</button>
+          </div>
+        </div>
+        <!-- 消息中心 -->
+        <div class="phone-page" data-page="messages">
+          <div style="padding:4px 0 12px;display:flex;align-items:center;gap:8px;">
+            <button onclick="citizenNav('home')" style="border:none;background:none;cursor:pointer;font-size:16px;">←</button>
+            <span style="font-weight:700;font-size:15px;">消息中心</span>
+            <span class="tag tag-danger" style="margin-left:auto;">3条未读</span>
+          </div>
+          <div class="card" style="cursor:pointer;border-left:3px solid #2563eb;">
+            <div style="font-weight:700;font-size:13px;">📋 诉求办理进度更新</div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:4px;">您反映的「派单距离增大」问题已被民呼我应受理，工作人员王建国正在处理中。</div>
+            <div style="font-size:10px;color:var(--text-3);margin-top:4px;">10分钟前</div>
+          </div>
+          <div class="card" style="cursor:pointer;">
+            <div style="font-weight:700;font-size:13px;">🏠 房源开放通知</div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:4px;">泉新公寓新增200套房源，即日起可在线申请。点击查看详情和申请条件。</div>
+            <div style="font-size:10px;color:var(--text-3);margin-top:4px;">2小时前</div>
+          </div>
+          <div class="card" style="cursor:pointer;">
+            <div style="font-weight:700;font-size:13px;">⭐ 技能培训报名</div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:4px;">"泉城星光"2026年第三期技能培训开始报名（无人机操作、直播运营、电商客服）。</div>
+            <div style="font-size:10px;color:var(--text-3);margin-top:4px;">昨天</div>
+          </div>
+          <div class="card" style="cursor:pointer;">
+            <div style="font-weight:700;font-size:13px;">☀️ 高温天气提醒</div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:4px;">今日最高气温38°C，请注意防暑降温。泉新公寓清凉驿站全天开放。</div>
+            <div style="font-size:10px;color:var(--text-3);margin-top:4px;">07-01</div>
+          </div>
+        </div>
+        <!-- 服务详情（以泉新公寓为例） -->
+        <div class="phone-page" data-page="serviceDetail">
+          <div style="padding:4px 0 12px;display:flex;align-items:center;gap:8px;">
+            <button onclick="citizenNav('home')" style="border:none;background:none;cursor:pointer;font-size:16px;">←</button>
+            <span style="font-weight:700;font-size:15px;">泉新公寓</span>
+          </div>
+          <div style="background:linear-gradient(135deg,#7c3aed,#a855f7);border-radius:var(--radius-lg);padding:20px;color:#fff;margin-bottom:12px;">
+            <div style="font-size:22px;margin-bottom:4px;">🏠</div>
+            <div style="font-weight:800;font-size:16px;">新就业群体专属公寓</div>
+            <div style="font-size:11px;opacity:.8;margin-top:4px;">保障性租赁住房 · 拎包入住 · 低于市场价30%</div>
+            <button class="btn btn-accent btn-sm" style="margin-top:12px;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);">立即申请</button>
+          </div>
+          <div class="grid-9" style="grid-template-columns:repeat(3,1fr);">
+            <div class="grid-item"><div class="gi-icon" style="background:#f5f3ff;">📍</div><span class="gi-label">3个房源点</span></div>
+            <div class="grid-item"><div class="gi-icon" style="background:#f5f3ff;">🏠</div><span class="gi-label">200套可申请</span></div>
+            <div class="grid-item"><div class="gi-icon" style="background:#f5f3ff;">💰</div><span class="gi-label">月租600元起</span></div>
+          </div>
+          <div class="card"><div style="font-weight:700;font-size:14px;">🏢 大明湖站 · 泉新公寓</div><div style="font-size:12px;color:var(--text-2);margin-top:4px;">距大明湖地铁站500m · 单间/套间可选 · 余128套</div><div style="margin-top:6px;"><span class="tag tag-success">可申请</span><span class="tag" style="margin-left:4px;background:#f1f5f9;">面积25-45m²</span></div></div>
+          <div class="card"><div style="font-weight:700;font-size:14px;">🏢 泉城路站 · 泉新公寓</div><div style="font-size:12px;color:var(--text-2);margin-top:4px;">市中心商圈旁 · 双人间为主 · 余52套</div><div style="margin-top:6px;"><span class="tag tag-warning">即将满房</span><span class="tag" style="margin-left:4px;background:#f1f5f9;">面积20-35m²</span></div></div>
+        </div>
+        <!-- 个人中心 -->
+        <div class="phone-page" data-page="profile">
+          <div class="profile-header" style="background:linear-gradient(135deg,#0f2b46,#1a4a78);margin:-12px -14px 0;padding:28px 14px 24px;color:#fff;border-radius:0 0 24px 24px;">
+            <div class="profile-avatar" style="background:rgba(255,255,255,.2);color:#fff;">👤</div>
+            <div class="profile-name">张师傅</div>
+            <div class="profile-role" style="color:rgba(255,255,255,.8);">外卖配送员 · 已认证</div>
+          </div>
+          <div class="profile-stats" style="background:#fff;border-radius:var(--radius);margin-top:12px;padding:8px 0;">
+            <div class="profile-stat">
+              <div class="ps-val">3</div><div class="ps-label">我的建议</div>
+            </div>
+            <div class="profile-stat">
+              <div class="ps-val">5</div><div class="ps-label">我的诉求</div>
+            </div>
+            <div class="profile-stat">
+              <div class="ps-val">12</div><div class="ps-label">问答记录</div>
+            </div>
+          </div>
+          <div class="menu-row mt-4">
+            <div class="menu-item" onclick="citizenNav('suggest')">💡 我的建议 <span class="mi-arrow">›</span></div>
+            <div class="menu-item" onclick="citizenNav('appeal')">📝 我的诉求 <span class="mi-arrow">›</span></div>
+            <div class="menu-item">🔔 消息通知 <span class="mi-arrow">›</span></div>
+            <div class="menu-item">⭐ 我的收藏 <span class="mi-arrow">›</span></div>
+            <div class="menu-item">⚙️ 设置 <span class="mi-arrow">›</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-tabbar">
+        <button class="tb-item active" data-ptab="home" onclick="citizenNav('home')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>首页
+        </button>
+        <button class="tb-item" data-ptab="service" onclick="citizenNav('home')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>服务
+        </button>
+        <button class="tb-item" data-ptab="msg">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>消息
+        </button>
+        <button class="tb-item" data-ptab="profile" onclick="citizenNav('profile')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>我的
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== TAB2: 工作人员端 ========================================== -->
+<div class="tab-content" id="tab-staff">
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+      <div class="phone-status"><span>9:41</span><span>泉小新·工作台</span><span>⚡📶🔋</span></div>
+      <div class="phone-body" id="staffBody">
+        <!-- 工作台首页 -->
+        <div class="phone-page active" data-spage="dashboard">
+          <!-- AI智能搜索条 -->
+          <div class="ai-search-bar" onclick="openAIDialog('staff')">
+            <div class="ai-icon">✨</div>
+            <span class="ai-placeholder">AI工作助手 · 问我任何工作问题...</span>
+            <span class="ai-shortcut">⌘K</span>
+          </div>
+          <!-- AI全屏对话浮层 -->
+          <div class="ai-dialog-overlay" id="aiDialog-staff">
+            <div class="ai-dialog-header">
+              <button onclick="closeAIDialog('staff')">✕</button>
+              <span class="ai-dialog-title">AI工作助手</span>
+            </div>
+            <div class="ai-dialog-body">
+              <div class="ai-logo-area">
+                <div class="ai-logo" style="background:linear-gradient(135deg,#1a4a78,#2563eb,#06b6d4);">泉</div>
+                <div class="ai-brand">泉小新 · 工作助手</div>
+                <div class="ai-slogan">AI赋能基层治理 · 一句话搞定工作</div>
+              </div>
+              <div class="ai-categories" id="aiCats-staff">
+                <span class="ai-cat-tab active" data-cat="all">全部</span>
+                <span class="ai-cat-tab" data-cat="task">任务查询</span>
+                <span class="ai-cat-tab" data-cat="appeal">诉求处置</span>
+                <span class="ai-cat-tab" data-cat="forward">生成话术</span>
+                <span class="ai-cat-tab" data-cat="policy">查政策</span>
+                <span class="ai-cat-tab" data-cat="sentiment">舆情分析</span>
+              </div>
+              <div class="ai-input-area">
+                <textarea class="ai-big-input" placeholder="直接说出您的工作需求，AI帮您自动处理..." rows="1"></textarea>
+                <div class="ai-input-tools">
+                  <div class="ai-tool-left">
+                    <button class="ai-tool-btn">🎤</button>
+                    <button class="ai-tool-btn">📎</button>
+                  </div>
+                  <button class="ai-send-btn" onclick="handleAISend('staff')">↑ 发送</button>
+                </div>
+              </div>
+              <div class="ai-thinking" id="aiThinking-staff">
+                <div class="ai-thinking-dots"><span></span><span></span><span></span></div>
+                <span>正在分析您的工作需求...</span>
+              </div>
+              <div class="ai-suggestions">
+                <span class="ai-sugg-chip" onclick="fillAIPrompt('staff','帮我查一下待办任务')"><span class="sugg-emoji">📋</span>帮我查一下待办任务</span>
+                <span class="ai-sugg-chip" onclick="fillAIPrompt('staff','生成高温天气关怀提醒转发话术')"><span class="sugg-emoji">📤</span>生成高温天气关怀提醒转发话术</span>
+                <span class="ai-sugg-chip" onclick="fillAIPrompt('staff','今天有什么舆情预警需要关注')"><span class="sugg-emoji">📡</span>今天有什么舆情预警需要关注</span>
+                <span class="ai-sugg-chip" onclick="fillAIPrompt('staff','外卖员高温补贴最新政策是什么')"><span class="sugg-emoji">📚</span>外卖员高温补贴最新政策是什么</span>
+              </div>
+            </div>
+          </div>
+          <div style="background:linear-gradient(135deg,#0f2b46,#1a4a78,#1e5a9e);margin:-12px -14px 12px;padding:22px 14px;color:#fff;border-radius:0 0 24px 24px;position:relative;overflow:hidden;">
+            <div style="position:absolute;right:-30px;top:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.2) 0%,transparent 70%);"></div>
+            <div style="position:relative;z-index:1;">
+            <div style="font-size:15px;font-weight:700;">👋 王主任，下午好</div>
+            <div style="font-size:12px;opacity:.8;margin-top:4px;">大明湖街道 · 社区工作者</div>
+            <div style="display:flex;gap:10px;margin-top:16px;">
+              <div style="flex:1;background:rgba(255,255,255,.12);border-radius:var(--radius);padding:14px;text-align:center;backdrop-filter:blur(4px);">
+                <div style="font-size:30px;font-weight:800;">7</div>
+                <div style="font-size:11px;opacity:.8;margin-top:2px;">待办任务</div>
+              </div>
+              <div style="flex:1;background:rgba(255,255,255,.12);border-radius:var(--radius);padding:14px;text-align:center;backdrop-filter:blur(4px);">
+                <div style="font-size:30px;font-weight:800;">3</div>
+                <div style="font-size:11px;opacity:.8;margin-top:2px;">待处理诉求</div>
+              </div>
+              <div style="flex:1;background:rgba(255,255,255,.12);border-radius:var(--radius);padding:14px;text-align:center;backdrop-filter:blur(4px);">
+                <div style="font-size:30px;font-weight:800;">92%</div>
+                <div style="font-size:11px;opacity:.8;margin-top:2px;">本月办结率</div>
+              </div>
+            </div>
+            </div>
+          </div>
+          <div class="grid-9" style="grid-template-columns:repeat(4,1fr);">
+            <div class="grid-item" onclick="staffNav('task')">
+              <div class="gi-icon" style="background:#EBF5FB;color:#2980B9;">📋</div>
+              <span class="gi-label">任务受领</span>
+            </div>
+            <div class="grid-item" onclick="staffNav('appealHandle')">
+              <div class="gi-icon" style="background:#FDEDEC;color:#D14343;">🔧</div>
+              <span class="gi-label">诉求处置</span>
+            </div>
+            <div class="grid-item" onclick="staffNav('sentiment')">
+              <div class="gi-icon" style="background:#FFF1F0;color:#cf1322;">📡</div>
+              <span class="gi-label">舆情预警</span>
+            </div>
+            <div class="grid-item" onclick="staffNav('assist')">
+              <div class="gi-icon" style="background:#E8F8F5;color:#1ABC9C;">🤖</div>
+              <span class="gi-label">我的助手</span>
+            </div>
+            <div class="grid-item" onclick="staffNav('contact')" style="margin-top:0;">
+              <div class="gi-icon" style="background:#FFF8EC;color:#E8A030;">📞</div>
+              <span class="gi-label">服务力量</span>
+            </div>
+          </div>
+          <div class="sec-header"><h4>📌 最近任务</h4><span class="more" onclick="staffNav('task')">全部 ›</span></div>
+          <div class="list-item" onclick="toggleExpand(this)">
+            <div class="li-avatar">📋</div>
+            <div class="li-body">
+              <div class="li-title">新就业群体走访摸排任务</div>
+              <div class="li-meta">来源：任务控减 · 截止 07-15</div>
+            </div>
+            <span class="tag tag-warning">办理中</span>
+            <div class="list-detail">
+              <div class="detail-row"><span>任务描述</span>对大明湖街道辖区内新就业群体（外卖员/网约车司机/主播）进行全面走访摸排</div>
+              <div class="detail-row"><span>目标数量</span>≥200人</div>
+              <div class="detail-row"><span>已完成</span>87人（43.5%）</div>
+            </div>
+          </div>
+          <div class="list-item" onclick="toggleExpand(this)">
+            <div class="li-avatar">🏠</div>
+            <div class="li-body">
+              <div class="li-title">泉新公寓入住资格审核</div>
+              <div class="li-meta">来源：街道办 · 截止 07-10</div>
+            </div>
+            <span class="tag tag-primary">待签收</span>
+            <div class="list-detail">
+              <div class="detail-row"><span>审核对象</span>本期申请泉新公寓的32名外卖配送员</div>
+              <div class="detail-row"><span>审核要点</span>就业时长验证、收入证明、无房证明核验</div>
+            </div>
+          </div>
+          <div class="list-item" onclick="toggleExpand(this)">
+            <div class="li-avatar">📊</div>
+            <div class="li-body">
+              <div class="li-title">季度服务数据汇总上报</div>
+              <div class="li-meta">来源：区委社工部 · 截止 07-20</div>
+            </div>
+            <span class="tag tag-primary">待签收</span>
+            <div class="list-detail">
+              <div class="detail-row"><span>数据范围</span>本季度诉求处置、建议收集、服务活动等数据</div>
+              <div class="detail-row"><span>上报模板</span>下载标准模板 · Excel格式</div>
+            </div>
+          </div>
+        </div>
+        <!-- 任务受领页 -->
+        <div class="phone-page" data-spage="task">
+          <div style="padding:4px 0 12px;display:flex;align-items:center;gap:8px;">
+            <button onclick="staffNav('dashboard')" style="border:none;background:none;cursor:pointer;font-size:16px;">←</button>
+            <span style="font-weight:600;font-size:15px;">任务受领</span>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:10px;">
+            <span class="tag tag-primary" style="cursor:pointer;">全部</span>
+            <span class="tag" style="cursor:pointer;background:#eee;">待签收</span>
+            <span class="tag" style="cursor:pointer;background:#eee;">办理中</span>
+            <span class="tag" style="cursor:pointer;background:#eee;">已完成</span>
+          </div>
+          <div class="list-item">
+            <div class="li-avatar">📋</div>
+            <div class="li-body">
+              <div class="li-title">新就业群体走访摸排任务</div>
+              <div class="li-meta">来源：任务控减 · 截止 07-15</div>
+            </div>
+            <span class="tag tag-warning">办理中</span>
+          </div>
+          <div class="list-item">
+            <div class="li-avatar">🏠</div>
+            <div class="li-body">
+              <div class="li-title">泉新公寓入住资格审核</div>
+              <div class="li-meta">来源：街道办 · 截止 07-10</div>
+            </div>
+            <span class="tag tag-primary">待签收</span>
+          </div>
+          <div class="list-item">
+            <div class="li-avatar">📊</div>
+            <div class="li-body">
+              <div class="li-title">季度服务数据汇总上报</div>
+              <div class="li-meta">来源：区委社工部 · 截止 07-20</div>
+            </div>
+            <span class="tag tag-primary">待签收</span>
+          </div>
+          <div class="list-item">
+            <div class="li-avatar">📝</div>
+            <div class="li-body">
+              <div class="li-title">高温补贴发放核实</div>
+              <div class="li-meta">来源：人社局 · 截止 07-08</div>
+            </div>
+            <span class="tag tag-success">已完成</span>
+          </div>
+        </div>
+        <!-- 诉求处置页 -->
+        <div class="phone-page" data-spage="appealHandle">
+          <div style="padding:4px 0 12px;display:flex;align-items:center;gap:8px;">
+            <button onclick="staffNav('dashboard')" style="border:none;background:none;cursor:pointer;font-size:16px;">←</button>
+            <span style="font-weight:600;font-size:15px;">诉求处置</span>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:10px;">
+            <span class="tag tag-primary" style="cursor:pointer;">全部(12)</span>
+            <span class="tag" style="cursor:pointer;background:#eee;">待处理(3)</span>
+            <span class="tag" style="cursor:pointer;background:#eee;">处理中(5)</span>
+            <span class="tag" style="cursor:pointer;background:#eee;">已办结(4)</span>
+          </div>
+          <div class="card" style="border-left:3px solid var(--danger);">
+            <div class="flex-between mb-2">
+              <span style="font-weight:600;">外卖员反映平台派单规则不透明</span>
+              <span class="tag tag-danger">待处理</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-2);">提交人：李师傅 · 07-01 · 大明湖街道</div>
+          </div>
+          <div class="card" style="border-left:3px solid var(--warning);">
+            <div class="flex-between mb-2">
+              <span style="font-weight:600;">网约车司机反映充电桩不足</span>
+              <span class="tag tag-warning">处理中</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-2);">提交人：赵师傅 · 06-28 · 泉城路街道</div>
+          </div>
+          <div class="card" style="border-left:3px solid var(--success);">
+            <div class="flex-between mb-2">
+              <span style="font-weight:600;">主播反映直播间被封禁申诉</span>
+              <span class="tag tag-success">已办结</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-2);">提交人：孙女士 · 06-25 · 趵突泉街道</div>
+          </div>
+        </div>
+        <!-- 通讯录页 -->
+        <div class="phone-page" data-spage="contact">
+          <div style="padding:4px 0 12px;display:flex;align-items:center;gap:8px;">
+            <button onclick="staffNav('dashboard')" style="border:none;background:none;cursor:pointer;font-size:16px;">←</button>
+            <span style="font-weight:600;font-size:15px;">服务力量通讯录</span>
+          </div>
+          <div class="search-bar">
+            <span class="icon">🔍</span>
+            <input type="text" placeholder="搜索姓名、单位...">
+          </div>
+          <div style="font-size:12px;font-weight:600;color:var(--text-3);padding:8px 0;">🏛️ 大明湖街道办事处</div>
+          <div class="list-item">
+            <div class="li-avatar">👤</div>
+            <div class="li-body">
+              <div class="li-title">张建国</div>
+              <div class="li-meta">街道社工站 · 站长</div>
+            </div>
+            <span style="font-size:12px;color:var(--primary);">📞 联系</span>
+          </div>
+          <div class="list-item">
+            <div class="li-avatar">👤</div>
+            <div class="li-body">
+              <div class="li-title">李明华</div>
+              <div class="li-meta">社区网格员 · 第3网格</div>
+            </div>
+            <span style="font-size:12px;color:var(--primary);">📞 联系</span>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:var(--text-3);padding:8px 0;">🏥 联动单位</div>
+          <div class="list-item">
+            <div class="li-avatar">🏥</div>
+            <div class="li-body">
+              <div class="li-title">济南市法律援助中心</div>
+              <div class="li-meta">法援在线 · 对接人：陈律师</div>
+            </div>
+            <span style="font-size:12px;color:var(--primary);">📞 联系</span>
+          </div>
+        </div>
+        <!-- 舆情预警页 -->
+        <div class="phone-page" data-spage="sentiment">
+          <div style="padding:4px 0 8px;display:flex;align-items:center;gap:8px;">
+            <button onclick="staffNav('dashboard')" style="border:none;background:none;cursor:pointer;font-size:16px;">←</button>
+            <span style="font-weight:700;font-size:15px;">📡 舆情预警</span>
+            <span class="tag tag-danger" style="margin-left:auto;font-size:10px;">3条预警</span>
+          </div>
+          <!-- Sentiment overview -->
+          <div class="sentiment-overview">
+            <div class="sentiment-bar neg"><div class="sb-num">12</div><div class="sb-label">负面舆情</div></div>
+            <div class="sentiment-bar warn"><div class="sb-num">28</div><div class="sb-label">关注舆情</div></div>
+            <div class="sentiment-bar pos"><div class="sb-num">146</div><div class="sb-label">正向舆情</div></div>
+          </div>
+          <!-- Trend -->
+          <div class="card">
+            <div class="flex-between mb-2"><span style="font-weight:700;font-size:13px;">📈 近7天舆情趋势</span><span style="font-size:10px;color:var(--text-3);">07-02更新</span></div>
+            <div class="trend-mini">
+              <div class="trend-bar stable" style="height:35%;" title="06-26: 8条"></div>
+              <div class="trend-bar stable" style="height:42%;" title="06-27: 10条"></div>
+              <div class="trend-bar rise" style="height:55%;" title="06-28: 15条"></div>
+              <div class="trend-bar rise" style="height:72%;" title="06-29: 23条"></div>
+              <div class="trend-bar rise" style="height:88%;" title="06-30: 31条"></div>
+              <div class="trend-bar rise" style="height:95%;" title="07-01: 38条"></div>
+              <div class="trend-bar rise" style="height:100%;" title="07-02: 42条"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-3);margin-top:4px;">
+              <span>06-26</span><span>06-28</span><span>06-30</span><span>07-02</span>
+            </div>
+          </div>
+          <!-- Keywords -->
+          <div class="card">
+            <div style="font-weight:700;font-size:13px;margin-bottom:8px;">🔥 热词监测</div>
+            <div class="keyword-cloud">
+              <span class="kw-tag hot">派单距离远</span>
+              <span class="kw-tag hot">超时扣款</span>
+              <span class="kw-tag warm">充电桩不足</span>
+              <span class="kw-tag warm">补贴未到账</span>
+              <span class="kw-tag warm">平台规则</span>
+              <span class="kw-tag normal">休息时间</span>
+              <span class="kw-tag normal">社保缴纳</span>
+              <span class="kw-tag normal">住房申请</span>
+              <span class="kw-tag normal">培训报名</span>
+              <span class="kw-tag normal">高温津贴</span>
+            </div>
+          </div>
+          <!-- Alert list -->
+          <div style="font-weight:700;font-size:14px;margin-bottom:8px;">🚨 预警工单 <span style="font-size:10px;color:var(--text-3);font-weight:400;">点击展开详情</span></div>
+          <div class="alert-card level-red" onclick="toggleAlert(this)">
+            <div class="ac-header">
+              <span class="ac-level red">🔴 严重</span>
+              <span class="ac-title">外卖骑手集体反映平台派单规则不公平</span>
+              <span class="ac-time">07-02 09:15</span>
+            </div>
+            <div class="ac-body">近24小时内，3个外卖骑手群中累计出现28条关于"派单距离增大""超时扣款增多"的负面舆情，且有扩散趋势。</div>
+            <div class="alert-detail">
+              <div class="ad-row"><span>涉及群聊</span>外卖骑手·泉城驿站 / 外卖骑手·历下站 / 骑手联盟群</div>
+              <div class="ad-row"><span>传播速度</span>↑ 较昨日增长 320%</div>
+              <div class="ad-row"><span>情感分析</span>负面 68% · 中性 22% · 正面 10%</div>
+              <div class="ad-row"><span>建议措施</span>1. 及时回应骑手关切 2. 协调平台方约谈 3. 发起工单跟踪</div>
+              <div class="alert-actions">
+                <button class="btn-handle">✅ 立即处置</button>
+                <button class="btn-escalate">🚨 上报领导</button>
+                <button class="btn-ignore">👁 持续观察</button>
+              </div>
+            </div>
+          </div>
+          <div class="alert-card level-orange" onclick="toggleAlert(this)">
+            <div class="ac-header">
+              <span class="ac-level orange">🟠 警告</span>
+              <span class="ac-title">网约车司机集中投诉充电桩不足问题</span>
+              <span class="ac-time">07-01 16:40</span>
+            </div>
+            <div class="ac-body">多个网约车司机群持续讨论充电难问题，涉及泉城路、大明湖等核心区域。本周新增相关诉求6条。</div>
+            <div class="alert-detail">
+              <div class="ad-row"><span>涉及群聊</span>网约车司机·互助群 / 滴滴司机·济南站</div>
+              <div class="ad-row"><span>传播速度</span>↑ 较上周增长 120%</div>
+              <div class="ad-row"><span>情感分析</span>负面 54% · 中性 31% · 正面 15%</div>
+              <div class="ad-row"><span>建议措施</span>1. 统计充电需求数据 2. 协调增设充电设施 3. 临时引导分流</div>
+              <div class="alert-actions">
+                <button class="btn-handle">✅ 立即处置</button>
+                <button class="btn-escalate">🚨 上报领导</button>
+                <button class="btn-ignore">👁 持续观察</button>
+              </div>
+            </div>
+          </div>
+          <div class="alert-card level-yellow" onclick="toggleAlert(this)">
+            <div class="ac-header">
+              <span class="ac-level yellow">🟡 关注</span>
+              <span class="ac-title">直播从业者平台账号封禁问题讨论增多</span>
+              <span class="ac-time">06-30 11:20</span>
+            </div>
+            <div class="ac-body">直播从业者群中出现关于"不明原因封号""申诉困难"的讨论，暂未形成集中爆发趋势。</div>
+            <div class="alert-detail">
+              <div class="ad-row"><span>涉及群聊</span>直播从业者·交流群</div>
+              <div class="ad-row"><span>传播速度</span>↑ 较上周增长 45%</div>
+              <div class="ad-row"><span>情感分析</span>负面 41% · 中性 38% · 正面 21%</div>
+              <div class="ad-row"><span>建议措施</span>1. 持续关注趋势变化 2. 准备应对预案</div>
+              <div class="alert-actions">
+                <button class="btn-handle">✅ 立即处置</button>
+                <button class="btn-ignore">👁 持续观察</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 我的助手页 -->
+        <div class="phone-page" data-spage="assist">
+          <div style="padding:4px 0 12px;display:flex;align-items:center;gap:8px;">
+            <button onclick="staffNav('dashboard')" style="border:none;background:none;cursor:pointer;font-size:16px;">←</button>
+            <span style="font-weight:600;font-size:15px;">我的助手</span>
+          </div>
+          <div class="chat-list">
+            <div class="chat-msg ai">
+              <div class="chat-avatar ai-av">AI</div>
+              <div>
+                <div class="chat-bubble">王主任您好！我是您的工作助手🤖 我可以帮您：一键生成转发话术、智能回复建议、政策快速查询。</div>
+              </div>
+            </div>
+            <div class="chat-msg user">
+              <div class="chat-avatar user-av">王</div>
+              <div class="chat-bubble">帮我生成一条高温天气关怀提醒，要发给外卖员群</div>
+            </div>
+            <div class="chat-msg ai">
+              <div class="chat-avatar ai-av">AI</div>
+              <div>
+                <div class="chat-bubble">已为您生成转发话术：<br><br>☀️【高温提醒】各位骑手师傅，今日最高气温达38°C，请注意防暑降温！<br>· 随身携带饮用水<br>· 感觉不适及时休息<br>· 泉新公寓清凉驿站开放中<br><br>📍 附近清凉驿站：大明湖站、泉城路站</div>
+                <div class="btn-group mt-2">
+                  <button class="btn btn-primary btn-sm">📋 一键复制</button>
+                  <button class="btn btn-outline btn-sm">📤 转发到群</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-tabbar">
+        <button class="tb-item active" data-ptab="dashboard" onclick="staffNav('dashboard')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>工作台
+        </button>
+        <button class="tb-item" data-ptab="task" onclick="staffNav('task')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>任务
+        </button>
+        <button class="tb-item" data-ptab="sentiment" onclick="staffNav('sentiment')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>预警
+        </button>
+        <button class="tb-item" data-ptab="appealHandle" onclick="staffNav('appealHandle')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>诉求
+        </button>
+        <button class="tb-item" data-ptab="profile">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>我的
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== TAB3: 后台管理端 ========================================== -->
+<div class="tab-content" id="tab-admin">
+  <div class="backend-layout">
+    <div class="backend-sidebar">
+      <div class="wb-brand">
+        <div class="wb-brand-logo">
+          <div class="wb-mark">🧩</div>
+          <div class="wb-tt"><b>WorkBuddy</b><small>泉小新 · AI 智能中枢</small></div>
+        </div>
+        <div class="wb-role-card">
+          <div class="rc-av">👤</div>
+          <div class="rc-tt"><b>王建国</b><small>大明湖街道 · 社区管理员</small></div>
+        </div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="sidebar-item active" data-apage="dashboard" onclick="adminNav('dashboard')">
+          <span class="sidebar-icon">🧩</span> AI 智能中枢
+        </div>
+        <div class="sidebar-item" data-apage="content" onclick="adminNav('content')">
+          <span class="sidebar-icon">📱</span> 小程序管理
+        </div>
+        <div class="sidebar-item" data-apage="appeals" onclick="adminNav('appeals')">
+          <span class="sidebar-icon">📝</span> 诉求工单管理
+        </div>
+        <div class="sidebar-item" data-apage="suggestions" onclick="adminNav('suggestions')">
+          <span class="sidebar-icon">💡</span> 建议管理
+        </div>
+        <div class="sidebar-item" data-apage="sentiment-admin" onclick="adminNav('sentiment-admin')">
+          <span class="sidebar-icon">📡</span> 舆情管理
+        </div>
+        <div class="sidebar-item" data-apage="stations" onclick="adminNav('stations')">
+          <span class="sidebar-icon">🏠</span> 泉心驿站管理
+        </div>
+        <div class="sidebar-item" data-apage="knowledge" onclick="adminNav('knowledge')">
+          <span class="sidebar-icon">📚</span> 知识库管理
+        </div>
+        <div class="sidebar-item" data-apage="users" onclick="adminNav('users')">
+          <span class="sidebar-icon">👥</span> 用户权限管理
+        </div>
+        <div class="sidebar-item" data-apage="messages-admin" onclick="adminNav('messages-admin')">
+          <span class="sidebar-icon">🔔</span> 消息推送管理
+        </div>
+        <div class="sidebar-item" data-apage="config" onclick="adminNav('config')">
+          <span class="sidebar-icon">⚙️</span> 系统配置
+        </div>
+      </div>
+    </div>
+    <div class="backend-main" id="adminMain">
+      <!-- AI 智能中枢（数据看板） -->
+      <div class="backend-page active" data-apage="dashboard">
+        <div class="page-header">
+          <h3>🧩 WorkBuddy AI 智能中枢</h3>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <span style="font-size:11px;color:var(--text-3);">数据更新：2026-07-02 09:30:15</span>
+            <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#10b981;font-weight:600;"><span style="width:6px;height:6px;background:#10b981;border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span>实时</span>
+          </div>
+        </div>
+        <!-- WorkBuddy AI 中枢能力横幅 -->
+        <div class="wb-hero-banner">
+          <div class="wb-hb-top">
+            <div class="hb-mark">🧩</div>
+            <div>
+              <h3>WorkBuddy · 泉小新的 AI 大脑</h3>
+              <p>作为社区管理员，你的诉求识别、政策问答、数据研判，都由 WorkBuddy 智能中枢自动驱动</p>
+            </div>
+          </div>
+          <div class="wb-hb-caps">
+            <div class="wb-cap">
+              <div class="cap-t">🤖 智能理解 · 自动成单</div>
+              <div class="cap-d">7×24 抓取群聊 / 一句话诉求，秒级识别分类、自动生成工单并派发</div>
+              <span class="cap-badge">本月 AI 成单 1,286 件</span>
+            </div>
+            <div class="wb-cap">
+              <div class="cap-t">📚 知识库 RAG · 精准问答</div>
+              <div class="cap-d">本地政策库 + 大模型，为居民与工作人员提供有出处的政策解答</div>
+              <span class="cap-badge">问答准确率 99.2%</span>
+            </div>
+            <div class="wb-cap">
+              <div class="cap-t">📊 数据贯通 · 智能研判</div>
+              <div class="cap-d">打通四级数据，自动生成看板、舆情预警与治理建议</div>
+              <span class="cap-badge">接入 186 个监测群</span>
+            </div>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card appeals">
+            <div class="stat-icon blue">📝</div>
+            <div class="stat-info">
+              <div class="stat-val">1,286</div>
+              <div class="stat-trend up">↑ 12.5% 较上月</div>
+              <div class="stat-label">诉求总量</div>
+            </div>
+          </div>
+          <div class="stat-card rate">
+            <div class="stat-icon green">✅</div>
+            <div class="stat-info">
+              <div class="stat-val">92.4%</div>
+              <div class="stat-trend up">↑ 2.1% 较上月</div>
+              <div class="stat-label">办结率</div>
+            </div>
+          </div>
+          <div class="stat-card suggestions">
+            <div class="stat-icon amber">💡</div>
+            <div class="stat-info">
+              <div class="stat-val">458</div>
+              <div class="stat-trend up">↑ 8.3% 较上月</div>
+              <div class="stat-label">建议总量</div>
+            </div>
+          </div>
+          <div class="stat-card qa">
+            <div class="stat-icon cyan">🤖</div>
+            <div class="stat-info">
+              <div class="stat-val">3,720</div>
+              <div class="stat-trend up">↑ 15.7% 较上月</div>
+              <div class="stat-label">问答总量</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-row">
+          <div class="chart-box"><h4>📈 诉求趋势（近6个月）</h4><div class="chart-inner" id="chart1"></div></div>
+          <div class="chart-box"><h4>🍩 诉求分类分布</h4><div class="chart-inner" id="chart2"></div></div>
+        </div>
+        <div class="chart-row equal">
+          <div class="chart-box"><h4>⏱️ 平均处理时效趋势（天）</h4><div class="chart-inner sm" id="chart3"></div></div>
+          <div class="chart-box"><h4>⭐ 满意度评分分布</h4><div class="chart-inner sm" id="chart4"></div></div>
+        </div>
+      </div>
+      <!-- 知识库管理 -->
+      <div class="backend-page" data-apage="knowledge">
+        <div class="page-header"><h3>📚 知识库管理 <span style="font-size:11px;font-weight:700;color:#2563eb;background:#eff6ff;padding:3px 10px;border-radius:100px;margin-left:8px;">WorkBuddy RAG 数据源</span></h3><button class="btn btn-primary">+ 新建知识</button></div>
+        <div class="kb-layout">
+          <div class="kb-tree">
+            <div class="kb-tree-item active">📁 政策法规</div>
+            <div class="kb-tree-item">📁 办事服务指南</div>
+            <div class="kb-tree-item">📁 常见问题</div>
+            <div class="kb-tree-item">📁 服务活动</div>
+            <div class="kb-tree-item">📁 通知公告</div>
+          </div>
+          <div class="kb-list">
+            <table class="data-table">
+              <thead>
+                <tr><th>知识标题</th><th>分类</th><th>创建时间</th><th>引用次数</th><th>状态</th><th>操作</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>济南市新就业形态劳动者权益保障实施办法</td><td><span class="tag tag-primary">政策法规</span></td><td>2026-06-15</td><td>128</td><td><span class="tag tag-success">已发布</span></td><td><a href="#" style="color:var(--primary);">编辑</a> <a href="#" style="color:var(--danger);">删除</a></td></tr>
+                <tr><td>外卖配送员公租房申请指南</td><td><span class="tag tag-info">办事指南</span></td><td>2026-06-20</td><td>256</td><td><span class="tag tag-success">已发布</span></td><td><a href="#" style="color:var(--primary);">编辑</a></td></tr>
+                <tr><td>网约车驾驶员从业资格证办理流程</td><td><span class="tag tag-info">办事指南</span></td><td>2026-06-22</td><td>89</td><td><span class="tag tag-success">已发布</span></td><td><a href="#" style="color:var(--primary);">编辑</a></td></tr>
+                <tr><td>高温补贴发放标准及申领方式（2026版）</td><td><span class="tag tag-primary">政策法规</span></td><td>2026-06-28</td><td>312</td><td><span class="tag tag-warning">审核中</span></td><td><a href="#" style="color:var(--primary);">编辑</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- 用户权限管理 -->
+      <div class="backend-page" data-apage="users">
+        <div class="page-header"><h3>👥 用户权限管理</h3><button class="btn btn-primary">+ 新增用户</button></div>
+        <table class="data-table">
+          <thead>
+            <tr><th>姓名</th><th>角色</th><th>所属组织</th><th>状态</th><th>最后登录</th><th>操作</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>王建国</td><td><span class="tag tag-primary">街道管理员</span></td><td>大明湖街道</td><td><span class="tag tag-success">正常</span></td><td>2026-07-02 09:15</td><td><a href="#" style="color:var(--primary);">编辑</a> <a href="#" style="color:var(--danger);">禁用</a></td></tr>
+            <tr><td>李明华</td><td><span class="tag tag-info">社区工作者</span></td><td>大明湖街道·第3网格</td><td><span class="tag tag-success">正常</span></td><td>2026-07-01 16:40</td><td><a href="#" style="color:var(--primary);">编辑</a></td></tr>
+            <tr><td>张小红</td><td><span class="tag tag-info">社区工作者</span></td><td>泉城路街道</td><td><span class="tag tag-success">正常</span></td><td>2026-07-02 08:30</td><td><a href="#" style="color:var(--primary);">编辑</a></td></tr>
+            <tr><td>赵德民</td><td><span class="tag tag-warning">区级管理员</span></td><td>历下区委社工部</td><td><span class="tag tag-success">正常</span></td><td>2026-07-01 14:20</td><td><a href="#" style="color:var(--primary);">编辑</a></td></tr>
+            <tr><td>陈志远</td><td><span class="tag tag-info">社区工作者</span></td><td>趵突泉街道</td><td><span class="tag tag-danger">已禁用</span></td><td>2026-05-20 10:00</td><td><a href="#" style="color:var(--primary);">编辑</a> <a href="#" style="color:var(--success);">启用</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- 系统配置 -->
+      <div class="backend-page" data-apage="config">
+        <div class="page-header"><h3>⚙️ 系统配置</h3></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="card"><h4 style="margin-bottom:12px;">📱 小程序服务入口配置</h4>
+            <table class="data-table"><thead><tr><th>服务名称</th><th>图标</th><th>状态</th><th>排序</th></tr></thead><tbody>
+              <tr><td>提建议</td><td>💡</td><td><span class="tag tag-success">显示</span></td><td>1</td></tr>
+              <tr><td>报诉求</td><td>📝</td><td><span class="tag tag-success">显示</span></td><td>2</td></tr>
+              <tr><td>智能问答</td><td>🤖</td><td><span class="tag tag-success">显示</span></td><td>3</td></tr>
+              <tr><td>泉城星光</td><td>⭐</td><td><span class="tag tag-success">显示</span></td><td>4</td></tr>
+              <tr><td>泉新公寓</td><td>🏠</td><td><span class="tag tag-success">显示</span></td><td>5</td></tr>
+              <tr><td>泉心驿站</td><td>📍</td><td><span class="tag tag-success">显示</span></td><td>6</td></tr>
+            </tbody></table>
+          </div>
+          <div class="card"><h4 style="margin-bottom:12px;">💬 欢迎词与消息模板</h4>
+            <div class="form-group"><label class="form-label">新入群欢迎词</label>
+              <textarea class="form-textarea" style="height:80px;">欢迎加入泉小新服务群！🎉 我是您的智能助手，您可以在群里直接@我提问，也可以点击下方小程序卡片进入泉小新平台～</textarea></div>
+            <div class="form-group"><label class="form-label">工单推送模板</label>
+              <textarea class="form-textarea" style="height:60px;">【新工单】编号{工单号}：{诉求摘要}，请及时处理。</textarea></div>
+            <button class="btn btn-primary">保存配置</button>
+          </div>
+        </div>
+      </div>
+      <!-- 小程序管理 -->
+      <div class="backend-page" data-apage="content">
+        <div class="page-header"><h3>📱 小程序内容管理</h3><button class="btn btn-primary">+ 新建内容</button></div>
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <span class="tag tag-primary" style="cursor:pointer;">全部</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">Banner</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">服务入口</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">资讯动态</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">服务详情</span>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>内容标题</th><th>类型</th><th>所属模块</th><th>状态</th><th>更新时间</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td>泉心服务 · 暖心同行</td><td><span class="tag tag-warning">Banner</span></td><td>首页轮播</td><td><span class="tag tag-success">已发布</span></td><td>07-02</td><td><a href="#" style="color:var(--primary-light);">编辑</a> <a href="#" style="color:var(--danger);">下架</a></td></tr>
+            <tr><td>泉新公寓 · 温暖入住</td><td><span class="tag tag-warning">Banner</span></td><td>首页轮播</td><td><span class="tag tag-success">已发布</span></td><td>07-01</td><td><a href="#" style="color:var(--primary-light);">编辑</a></td></tr>
+            <tr><td>泉新公寓入住申请指南</td><td><span class="tag tag-info">服务详情</span></td><td>泉新公寓</td><td><span class="tag tag-success">已发布</span></td><td>06-28</td><td><a href="#" style="color:var(--primary-light);">编辑</a></td></tr>
+            <tr><td>"泉城星光"技能培训报名通知</td><td><span class="tag tag-info">资讯动态</span></td><td>泉城星光</td><td><span class="tag tag-warning">审核中</span></td><td>07-02</td><td><a href="#" style="color:var(--primary-light);">编辑</a> <a href="#" style="color:var(--success);">发布</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- 诉求工单管理 -->
+      <div class="backend-page" data-apage="appeals">
+        <div class="page-header"><h3>📝 诉求工单管理</h3><button class="btn btn-primary">+ 新建工单</button></div>
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <span class="tag tag-primary" style="cursor:pointer;">全部(1286)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">待分配(86)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">处理中(210)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">已办结(990)</span>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>工单编号</th><th>诉求分类</th><th>诉求人</th><th>提交时间</th><th>处理人</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td>GD-2026-0712</td><td>劳务纠纷</td><td>李师傅</td><td>07-02 08:35</td><td>待分配</td><td><span class="tag tag-danger">待分配</span></td><td><a href="#" style="color:var(--primary-light);">分配</a></td></tr>
+            <tr><td>GD-2026-0708</td><td>社会保障</td><td>赵师傅</td><td>07-01 15:20</td><td>王建国</td><td><span class="tag tag-warning">处理中</span></td><td><a href="#" style="color:var(--primary-light);">跟进</a></td></tr>
+            <tr><td>GD-2026-0695</td><td>权益保障</td><td>孙女士</td><td>06-30 11:00</td><td>李明华</td><td><span class="tag tag-success">已办结</span></td><td><a href="#" style="color:var(--primary-light);">查看</a></td></tr>
+            <tr><td>GD-2026-0688</td><td>住房问题</td><td>刘师傅</td><td>06-28 16:45</td><td>张小红</td><td><span class="tag tag-success">已办结</span></td><td><a href="#" style="color:var(--primary-light);">查看</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- 建议管理 -->
+      <div class="backend-page" data-apage="suggestions">
+        <div class="page-header"><h3>💡 建议管理</h3></div>
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <span class="tag tag-primary" style="cursor:pointer;">全部(458)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">待审核(32)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">已采纳(286)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">已回复(140)</span>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>建议标题</th><th>类型</th><th>提交人</th><th>提交时间</th><th>采纳状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td>泉城路增设换电柜建议</td><td>设施建设</td><td>张师傅</td><td>07-01 16:20</td><td><span class="tag tag-success">已采纳</span></td><td><a href="#" style="color:var(--primary-light);">查看</a></td></tr>
+            <tr><td>增加夜间服务窗口建议</td><td>服务改进</td><td>王师傅</td><td>06-29 22:10</td><td><span class="tag tag-warning">待审核</span></td><td><a href="#" style="color:var(--primary-light);">审核</a></td></tr>
+            <tr><td>增加法律咨询服务时间</td><td>政策建议</td><td>赵女士</td><td>06-28 14:30</td><td><span class="tag tag-success">已采纳</span></td><td><a href="#" style="color:var(--primary-light);">查看</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- 舆情管理 -->
+      <div class="backend-page" data-apage="sentiment-admin">
+        <div class="page-header"><h3>📡 舆情管理</h3></div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-icon blue">🔴</div><div class="stat-info"><div class="stat-val">3</div><div class="stat-label">严重预警</div></div></div>
+          <div class="stat-card"><div class="stat-icon amber">🟠</div><div class="stat-info"><div class="stat-val">8</div><div class="stat-label">警告关注</div></div></div>
+          <div class="stat-card"><div class="stat-icon green">🟢</div><div class="stat-info"><div class="stat-val">186</div><div class="stat-label">正常监测群</div></div></div>
+          <div class="stat-card"><div class="stat-icon cyan">🤖</div><div class="stat-info"><div class="stat-val">99.2%</div><div class="stat-label">AI识别准确率</div></div></div>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>预警等级</th><th>关键词</th><th>涉及群聊</th><th>触发时间</th><th>扩散速度</th><th>处置状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag tag-danger">严重</span></td><td>派单距离·超时扣款</td><td>外卖骑手群(3个)</td><td>07-02 09:15</td><td>↑320%</td><td><span class="tag tag-warning">处理中</span></td><td><a href="#" style="color:var(--primary-light);">处置</a></td></tr>
+            <tr><td><span class="tag tag-warning">警告</span></td><td>充电桩不足</td><td>网约车司机群(2个)</td><td>07-01 16:40</td><td>↑120%</td><td><span class="tag tag-primary">已派单</span></td><td><a href="#" style="color:var(--primary-light);">跟进</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- 泉心驿站管理 -->
+      <div class="backend-page" data-apage="stations">
+        <div class="page-header"><h3>🏠 泉心驿站管理</h3><button class="btn btn-primary">+ 新增驿站</button></div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-icon blue">🏠</div><div class="stat-info"><div class="stat-val">32</div><div class="stat-label">驿站总数</div></div></div>
+          <div class="stat-card"><div class="stat-icon green">✅</div><div class="stat-info"><div class="stat-val">28</div><div class="stat-label">运营中</div></div></div>
+          <div class="stat-card"><div class="stat-icon amber">👥</div><div class="stat-info"><div class="stat-val">1,250</div><div class="stat-label">月均服务人次</div></div></div>
+          <div class="stat-card"><div class="stat-icon cyan">⭐</div><div class="stat-info"><div class="stat-val">4.8</div><div class="stat-label">平均评分</div></div></div>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>驿站名称</th><th>所属区域</th><th>地址</th><th>开放时间</th><th>容纳人数</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td>大明湖站</td><td>历下区</td><td>大明湖路268号</td><td>24小时</td><td>30人</td><td><span class="tag tag-success">运营中</span></td><td><a href="#" style="color:var(--primary-light);">编辑</a></td></tr>
+            <tr><td>泉城路站</td><td>历下区</td><td>泉城路188号</td><td>08:00-22:00</td><td>50人</td><td><span class="tag tag-success">运营中</span></td><td><a href="#" style="color:var(--primary-light);">编辑</a></td></tr>
+            <tr><td>趵突泉站</td><td>历下区</td><td>趵突泉南路6号</td><td>06:00-23:00</td><td>40人</td><td><span class="tag tag-success">运营中</span></td><td><a href="#" style="color:var(--primary-light);">编辑</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- 消息推送管理 -->
+      <div class="backend-page" data-apage="messages-admin">
+        <div class="page-header"><h3>🔔 消息推送管理</h3><button class="btn btn-primary">+ 新建推送</button></div>
+        <table class="data-table">
+          <thead><tr><th>推送标题</th><th>推送渠道</th><th>目标用户</th><th>推送时间</th><th>送达量</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td>高温天气关怀提醒</td><td><span class="tag tag-info">小程序+企微</span></td><td>全部外卖骑手</td><td>07-02 08:00</td><td>1,280</td><td><span class="tag tag-success">已送达</span></td><td><a href="#" style="color:var(--primary-light);">查看</a></td></tr>
+            <tr><td>泉新公寓新房源通知</td><td><span class="tag tag-info">小程序</span></td><td>新就业群体</td><td>07-01 14:00</td><td>3,540</td><td><span class="tag tag-success">已送达</span></td><td><a href="#" style="color:var(--primary-light);">查看</a></td></tr>
+            <tr><td>技能培训报名提醒</td><td><span class="tag tag-info">小程序+企微</span></td><td>全部用户</td><td>07-03 10:00</td><td>-</td><td><span class="tag tag-warning">待发送</span></td><td><a href="#" style="color:var(--primary-light);">编辑</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== TAB4: 企业微信AI助手 ========================================== -->
+<div class="tab-content" id="tab-wework">
+  <div class="wework-wrap">
+    <div class="wework-app">
+      <!-- Left dark nav -->
+      <div class="wework-nav">
+        <div class="wn-avatar" title="王主任">王</div>
+        <div class="wn-icon active" title="消息">💬<span class="wn-dot"></span></div>
+        <div class="wn-icon" title="通讯录">👥</div>
+        <div class="wn-icon" title="工作台">⚡</div>
+        <div class="wn-icon" title="文件">📁</div>
+        <div style="flex:1;"></div>
+        <div class="wn-icon" title="设置">⚙</div>
+      </div>
+
+      <!-- Group / chat list panel -->
+      <div class="wework-panel-list" id="wwPanelList">
+        <div class="wpl-search">
+          <input type="text" placeholder="搜索群聊">
+        </div>
+        <div class="wpl-tabs">
+          <span class="active" onclick="weworkNav('monitor')">群聊监听</span>
+          <span onclick="weworkNav('qa')">智能问答</span>
+          <span onclick="weworkNav('notify')">工单提醒</span>
+        </div>
+        <div class="wework-group-list">
+          <div class="wework-group-item active" onclick="weworkSelectGroup(this)">
+            <div class="wework-group-avatar" style="background:#4A90D9;">外</div>
+            <div class="wework-group-info">
+              <div class="wework-group-name"><span class="at">@</span>外卖骑手·泉城驿站</div>
+              <div class="wework-group-preview">李师傅：最近派单越来越远了……</div>
+            </div>
+            <span class="wework-badge">5</span>
+          </div>
+          <div class="wework-group-item" onclick="weworkSelectGroup(this)">
+            <div class="wework-group-avatar" style="background:#27AE60;">网</div>
+            <div class="wework-group-info">
+              <div class="wework-group-name"><span class="at">@</span>网约车司机·互助群</div>
+              <div class="wework-group-preview">赵师傅：充电桩还是不太够用</div>
+            </div>
+            <span class="wework-badge">2</span>
+          </div>
+          <div class="wework-group-item" onclick="weworkSelectGroup(this)">
+            <div class="wework-group-avatar" style="background:#E67E22;">直</div>
+            <div class="wework-group-info">
+              <div class="wework-group-name"><span class="at">@</span>直播从业者·交流群</div>
+              <div class="wework-group-preview">小丽：有没有人知道怎么申诉……</div>
+            </div>
+          </div>
+          <div class="wework-group-item" onclick="weworkSelectGroup(this)">
+            <div class="wework-group-avatar" style="background:#8E44AD;">快</div>
+            <div class="wework-group-info">
+              <div class="wework-group-name"><span class="at">@</span>快递小哥·便民服务群</div>
+              <div class="wework-group-preview">刘师傅：驿站放件有变动</div>
+            </div>
+            <span class="wework-badge">1</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main chat area -->
+      <div class="wework-chat">
+        <!-- Monitor mode -->
+        <div id="wwMonitorView">
+          <div class="wework-chat-header">🤖 AI识别 — 外卖骑手·泉城驿站 <span style="font-size:11px;color:#999;font-weight:400;margin-left:8px;">7x24h 实时监听中</span></div>
+          <div class="wework-chat-body">
+            <div class="ww-ai-card">
+              <div style="font-weight:600;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span style="color:#f54a45;">●</span> 最新识别 · 07-02 08:32</div>
+              <div class="original-msg">💬 <b>李师傅</b>：最近平台派单越来越远了，以前3公里以内，现在经常5公里以上，超时还要扣钱，这个能反映一下吗？</div>
+              <div class="ai-tags">
+                <span class="ai-tag intent">🎯 意图：诉求</span>
+                <span class="ai-tag category">📂 劳务纠纷·平台规则</span>
+                <span class="ai-tag person">👤 李师傅</span>
+                <span class="ai-tag status">📤 已推送民呼我应</span>
+              </div>
+            </div>
+            <div class="ww-ai-card" style="border-left-color:#10b981;">
+              <div style="font-weight:600;font-size:13px;margin-bottom:8px;">07-01 16:20</div>
+              <div class="original-msg">💬 <b>张师傅</b>：建议在泉城路这边多设几个换电柜，现在换电不太方便，希望能考虑一下。</div>
+              <div class="ai-tags">
+                <span class="ai-tag intent" style="background:#E8F5E9;color:#2E7D32;">💡 意图：建议</span>
+                <span class="ai-tag category">📂 服务改进·设施建设</span>
+                <span class="ai-tag status">📤 已推送泉民建言</span>
+              </div>
+            </div>
+            <div class="ww-ai-card" style="border-left-color:#10b981;">
+              <div style="font-weight:600;font-size:13px;margin-bottom:8px;">06-30 14:55</div>
+              <div class="original-msg">💬 <b>王师傅</b>：高温补贴什么时候发？上次说的6月开始发，这都7月了还没到账。</div>
+              <div class="ai-tags">
+                <span class="ai-tag intent">🎯 意图：诉求</span>
+                <span class="ai-tag category">📂 社会保障·补贴发放</span>
+                <span class="ai-tag status">📤 已推送民呼我应</span>
+              </div>
+            </div>
+          </div>
+          <div class="wework-chat-input">
+            <span style="font-size:12px;color:#999;">群聊监听自动运行中，无需手动输入</span>
+          </div>
+        </div>
+
+        <!-- QA mode (hidden by default) -->
+        <div id="wwQAView" style="display:none;flex-direction:column;flex:1;">
+          <div class="wework-chat-header">💬 智能问答 <span style="font-size:11px;color:#267EF0;font-weight:400;margin-left:8px;">@泉小新</span></div>
+          <div class="wework-chat-body">
+            <div style="text-align:center;font-size:11px;color:#b0b3b8;margin-bottom:4px;">昨天 17:30</div>
+            <div class="ww-msg mine">
+              <div class="ww-msg-avatar" style="background:#267EF0;">王</div>
+              <div><div class="ww-msg-bubble">泉小新，帮我查一下外卖员高温补贴标准</div></div>
+            </div>
+            <div class="ww-msg">
+              <div class="ww-msg-avatar" style="background:#07C160;">AI</div>
+              <div>
+                <div class="ww-msg-bubble">根据济南市2026年高温补贴政策：<br>· 室外作业人员：300元/月（6-9月）<br>· 发放条件：日最高气温 ≥ 35°C<br>· 申领方式：通过"泉新公寓"小程序在线申请<br>· 所需材料：身份证、平台接单记录、银行卡号<br><br><span style="color:#999;font-size:11px;">📚 来源：济南市人社局《2026年高温补贴发放管理办法》· 06-15更新</span></div>
+              </div>
+            </div>
+            <div style="text-align:center;font-size:11px;color:#b0b3b8;margin:4px 0;">今天 09:15</div>
+            <div class="ww-msg mine">
+              <div class="ww-msg-avatar" style="background:#267EF0;">王</div>
+              <div><div class="ww-msg-bubble">@泉小新 生成一条高温天气关怀提醒，要发给外卖员群</div></div>
+            </div>
+            <div class="ww-msg">
+              <div class="ww-msg-avatar" style="background:#07C160;">AI</div>
+              <div>
+                <div class="ww-msg-bubble">已为您生成转发话术：<br><br>☀️【高温提醒】各位骑手师傅，今日最高气温达38°C，请注意防暑降温！<br>· 随身携带饮用水，避免脱水<br>· 感觉不适及时到阴凉处休息<br>· 泉新公寓清凉驿站全天开放<br><br>📍 附近清凉驿站：大明湖站、泉城路站<br><br><button style="background:#267EF0;color:#fff;border:none;padding:6px 16px;border-radius:3px;font-size:12px;cursor:pointer;margin-right:6px;">📋 一键复制</button><button style="background:#fff;color:#267EF0;border:1px solid #267EF0;padding:6px 16px;border-radius:3px;font-size:12px;cursor:pointer;">📤 转发到群</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="wework-chat-input">
+            <div class="wci-tools">😊 📎 📷</div>
+            <input type="text" placeholder="@泉小新 输入问题...">
+            <button class="wci-send">发送</button>
+          </div>
+        </div>
+
+        <!-- Notify mode (hidden by default) -->
+        <div id="wwNotifyView" style="display:none;flex-direction:column;flex:1;">
+          <div class="wework-chat-header">🔔 工单消息提醒 <span style="font-size:11px;color:#999;font-weight:400;margin-left:8px;">最近7天</span></div>
+          <div class="wework-chat-body">
+            <div class="ww-notify-item">
+              <div class="ww-notify-icon" style="background:#FEF0EF;color:#f54a45;">📝</div>
+              <div class="ww-notify-info">
+                <div class="ww-notify-title">新工单 · GD-2026-0712</div>
+                <div class="ww-notify-meta">外卖骑手李师傅反映平台派单距离问题 · 07-02 08:35 · 待分配</div>
+              </div>
+              <div class="ww-notify-actions"><button>查看详情</button></div>
+            </div>
+            <div class="ww-notify-item">
+              <div class="ww-notify-icon" style="background:#FFF8E6;color:#f59e0b;">📋</div>
+              <div class="ww-notify-info">
+                <div class="ww-notify-title">工单已分配 · GD-2026-0708</div>
+                <div class="ww-notify-meta">网约车司机充电桩诉求 → 分配至王建国 · 07-01 15:20</div>
+              </div>
+              <div class="ww-notify-actions"><button>查看详情</button></div>
+            </div>
+            <div class="ww-notify-item">
+              <div class="ww-notify-icon" style="background:#E8F8EE;color:#2CA358;">✅</div>
+              <div class="ww-notify-info">
+                <div class="ww-notify-title">工单已办结 · GD-2026-0695</div>
+                <div class="ww-notify-meta">主播直播封禁申诉 → 已协调平台解封 · 06-30 11:00</div>
+              </div>
+              <div class="ww-notify-actions"><button>查看详情</button></div>
+            </div>
+            <div class="ww-notify-item">
+              <div class="ww-notify-icon" style="background:#E8F8EE;color:#2CA358;">✅</div>
+              <div class="ww-notify-info">
+                <div class="ww-notify-title">工单已办结 · GD-2026-0688</div>
+                <div class="ww-notify-meta">快递员驿站费用问题 → 已协调降低费用 · 06-28 16:45</div>
+              </div>
+              <div class="ww-notify-actions"><button>查看详情</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== SCRIPTS ========================================== -->
+<script>
+// ===== Banner Carousel =====
+let bannerIdx = 0;
+const banners = [
+  { h3: '泉心服务 · 暖心同行', p: '您的声音，我们用心倾听' },
+  { h3: '泉新公寓 · 温暖入住', p: '200套新房源现已开放申请' },
+  { h3: '炎炎夏日 · 清凉关怀', p: '高温补贴申领通道已开启' }
+];
+function rotateBanner() {
+  bannerIdx = (bannerIdx + 1) % banners.length;
+  const b = banners[bannerIdx];
+  const bannerEl = document.getElementById('citizenBanner');
+  if (bannerEl) {
+    bannerEl.querySelector('h3').textContent = b.h3;
+    bannerEl.querySelector('p').textContent = b.p;
+    bannerEl.querySelectorAll('.banner-dot').forEach((d, i) => d.classList.toggle('active', i === bannerIdx));
+  }
+}
+setInterval(rotateBanner, 4000);
+
+// ===== Toast notification =====
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.textContent = msg;
+  Object.assign(toast.style, {
+    position:'fixed',bottom:'100px',left:'50%',transform:'translateX(-50%)',
+    background:'linear-gradient(135deg,#0f2b46,#1a4a78)',color:'#fff',
+    padding:'12px 28px',borderRadius:'100px',fontSize:'14px',fontWeight:'600',
+    zIndex:'9999',boxShadow:'0 8px 32px rgba(15,43,70,.3)',
+    animation:'fadeUp 0.3s ease, fadeUp 0.3s ease 2.2s reverse forwards'
+  });
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2600);
+}
+
+// ===== Task item expand =====
+function toggleExpand(el) {
+  el.classList.toggle('expanded');
+}
+
+// ===== AI Dialog =====
+function openAIDialog(type) {
+  const dlg = document.getElementById('aiDialog-' + type);
+  if (dlg) dlg.classList.add('open');
+}
+function closeAIDialog(type) {
+  const dlg = document.getElementById('aiDialog-' + type);
+  if (dlg) {
+    dlg.classList.remove('open');
+    // Reset thinking state
+    const thinking = dlg.querySelector('.ai-thinking');
+    if (thinking) thinking.classList.remove('show');
+    // Clear input
+    const input = dlg.querySelector('.ai-big-input');
+    if (input) input.value = '';
+  }
+}
+function fillAIPrompt(type, text) {
+  const dlg = document.getElementById('aiDialog-' + type);
+  if (!dlg) return;
+  const input = dlg.querySelector('.ai-big-input');
+  if (input) { input.value = text; input.focus(); }
+}
+function handleAISend(type) {
+  const dlg = document.getElementById('aiDialog-' + type);
+  if (!dlg) return;
+  const input = dlg.querySelector('.ai-big-input');
+  const thinking = dlg.querySelector('.ai-thinking');
+  if (!input || !input.value.trim()) return;
+  // Show thinking
+  if (thinking) thinking.classList.add('show');
+  // Simulate AI processing
+  setTimeout(() => {
+    if (thinking) thinking.classList.remove('show');
+    showToast('AI已收到您的需求，正在自动为您办理...');
+    setTimeout(() => closeAIDialog(type), 600);
+  }, 1800);
+}
+// Category tab switching
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('ai-cat-tab')) {
+    const parent = e.target.parentElement;
+    if (!parent) return;
+    parent.querySelectorAll('.ai-cat-tab').forEach(t => t.classList.remove('active'));
+    e.target.classList.add('active');
+  }
+});
+
+// ===== Alert card expand =====
+function toggleAlert(el) {
+  el.classList.toggle('expanded');
+}
+
+// ===== Auto-refresh sentiment data (demo) =====
+let sentimentRefreshInterval;
+function startSentimentRefresh() {
+  if (sentimentRefreshInterval) clearInterval(sentimentRefreshInterval);
+  sentimentRefreshInterval = setInterval(() => {
+    const bars = document.querySelectorAll('.trend-bar');
+    if (bars.length > 0) {
+      bars.forEach(b => {
+        const newH = Math.floor(Math.random() * 60) + 30;
+        b.style.height = newH + '%';
+      });
+    }
+  }, 5000);
+}
+function stopSentimentRefresh() {
+  if (sentimentRefreshInterval) { clearInterval(sentimentRefreshInterval); sentimentRefreshInterval = null; }
+}
+
+// ===== Main TAB switching =====
+document.querySelectorAll('#mainTabBar .tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#mainTabBar .tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'tab-admin') setTimeout(initCharts, 200);
+  });
+});
+
+// ===== TAB1: Citizen sub-navigation =====
+function citizenNav(page) {
+  document.querySelectorAll('#citizenBody .phone-page').forEach(p => p.classList.remove('active'));
+  const target = document.querySelector(`#citizenBody [data-page="${page}"]`);
+  if (target) target.classList.add('active');
+
+  const body = document.getElementById('citizenBody');
+  if (body) body.scrollTop = 0;
+  const tbb = body?.parentElement?.querySelector('.phone-tabbar');
+  if (tbb) {
+    tbb.querySelectorAll('.tb-item').forEach(t => t.classList.remove('active'));
+    const match = tbb.querySelector(`[data-ptab="${page}"]`);
+    if (match) match.classList.add('active');
+  }
+
+  // Form submit → toast
+  if (page === 'suggest' || page === 'appeal') {
+    const submitBtn = target?.querySelector('.btn-accent, .btn-primary');
+    if (submitBtn && !submitBtn.dataset.bound) {
+      submitBtn.dataset.bound = '1';
+      submitBtn.addEventListener('click', () => {
+        const msg = page === 'suggest' ? '✅ 建议已提交至泉民建言' : '✅ 诉求已推送至民呼我应';
+        showToast(msg);
+      });
+    }
+  }
+}
+
+// ===== TAB2: Staff sub-navigation =====
+function staffNav(page) {
+  document.querySelectorAll('#staffBody .phone-page').forEach(p => p.classList.remove('active'));
+  const target = document.querySelector(`#staffBody [data-spage="${page}"]`);
+  if (target) target.classList.add('active');
+  const body = document.getElementById('staffBody');
+  if (body) body.scrollTop = 0;
+  const tbb = body?.parentElement?.querySelector('.phone-tabbar');
+  if (tbb) {
+    tbb.querySelectorAll('.tb-item').forEach(t => t.classList.remove('active'));
+    const match = tbb.querySelector(`[data-ptab="${page}"]`);
+    if (match) match.classList.add('active');
+  }
+  // Sentiment page auto-refresh
+  if (page === 'sentiment') startSentimentRefresh();
+  else stopSentimentRefresh();
+}
+
+// ===== TAB3: Admin sub-navigation =====
+function adminNav(page) {
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  const sidebarItem = document.querySelector(`[data-apage="${page}"].sidebar-item`);
+  if (sidebarItem) sidebarItem.classList.add('active');
+  document.querySelectorAll('#adminMain .backend-page').forEach(p => p.classList.remove('active'));
+  const target = document.querySelector(`#adminMain [data-apage="${page}"]`);
+  if (target) target.classList.add('active');
+  if (page === 'dashboard') setTimeout(initCharts, 200);
+}
+
+// ===== TAB4: WeWork navigation =====
+function weworkNav(tab) {
+  // Update list-panel tabs
+  document.querySelectorAll('#wwPanelList .wpl-tabs span').forEach(s => s.classList.remove('active'));
+  const tabSpan = document.querySelector(`#wwPanelList .wpl-tabs span[onclick*="${tab}"]`);
+  if (tabSpan) tabSpan.classList.add('active');
+
+  // Toggle views
+  const monitorV = document.getElementById('wwMonitorView');
+  const qaV = document.getElementById('wwQAView');
+  const notifyV = document.getElementById('wwNotifyView');
+  if (monitorV) monitorV.style.display = tab === 'monitor' ? '' : 'none';
+  if (qaV) { qaV.style.display = tab === 'qa' ? 'flex' : 'none'; }
+  if (notifyV) { notifyV.style.display = tab === 'notify' ? 'flex' : 'none'; }
+
+  // Show group list only in monitor mode
+  const groupList = document.querySelector('#wwPanelList .wework-group-list');
+  if (groupList) groupList.style.display = tab === 'monitor' ? '' : 'none';
+}
+
+function weworkSelectGroup(el) {
+  document.querySelectorAll('#wwPanelList .wework-group-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ===== ECharts =====
+let c1, c2, c3, c4;
+function initCharts() {
+  const el1 = document.getElementById('chart1');
+  const el2 = document.getElementById('chart2');
+  if (!el1 || !el2) return;
+  [c1, c2, c3, c4].forEach(c => c?.dispose());
+
+  c1 = echarts.init(el1);
+  c1.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: 44, right: 20, top: 20, bottom: 28 },
+    xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月', '5月', '6月'], axisLabel: { fontSize: 11, color: '#94a3b8' }, axisLine: { lineStyle: { color: '#e2e8f0' } } },
+    yAxis: { type: 'value', axisLabel: { fontSize: 11, color: '#94a3b8' }, splitLine: { lineStyle: { color: '#f1f5f9' } } },
+    series: [{ data: [156, 178, 195, 220, 245, 286], type: 'line', smooth: true,
+      areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(37,99,235,.15)' }, { offset: 1, color: 'rgba(37,99,235,0)' }] } },
+      lineStyle: { color: '#2563eb', width: 3 }, itemStyle: { color: '#2563eb' },
+      symbol: 'circle', symbolSize: 6 }]
+  });
+
+  c2 = echarts.init(el2);
+  c2.setOption({
+    tooltip: { trigger: 'item' },
+    legend: { bottom: 0, textStyle: { fontSize: 10, color: '#64748b' } },
+    series: [{ type: 'pie', radius: ['48%', '72%'], center: ['50%', '45%'], label: { fontSize: 10, color: '#64748b' },
+      data: [
+        { value: 385, name: '劳务纠纷', itemStyle: { color: '#ef4444' } },
+        { value: 298, name: '社会保障', itemStyle: { color: '#f59e0b' } },
+        { value: 220, name: '住房问题', itemStyle: { color: '#2563eb' } },
+        { value: 198, name: '子女教育', itemStyle: { color: '#10b981' } },
+        { value: 185, name: '健康医疗', itemStyle: { color: '#7c3aed' } }
+      ] }]
+  });
+
+  const el3 = document.getElementById('chart3');
+  const el4 = document.getElementById('chart4');
+  if (el3) {
+    c3 = echarts.init(el3);
+    c3.setOption({
+      tooltip: { trigger: 'axis' },
+      grid: { left: 44, right: 16, top: 16, bottom: 24 },
+      xAxis: { type: 'category', data: ['1月','2月','3月','4月','5月','6月'], axisLabel: { fontSize: 10, color: '#94a3b8' } },
+      yAxis: { type: 'value', name: '天', axisLabel: { fontSize: 10, color: '#94a3b8' }, splitLine: { lineStyle: { color: '#f1f5f9' } } },
+      series: [{ data: [5.2, 4.8, 4.5, 4.1, 3.8, 3.5], type: 'bar', barWidth: 20,
+        itemStyle: { borderRadius: [6,6,0,0], color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: '#06b6d4' }, { offset: 1, color: '#0891b2' }] } } }]
+    });
+  }
+  if (el4) {
+    c4 = echarts.init(el4);
+    c4.setOption({
+      tooltip: { trigger: 'item' },
+      legend: { bottom: 0, textStyle: { fontSize: 10 } },
+      series: [{ type: 'pie', radius: ['50%', '75%'], center: ['50%', '45%'], label: { fontSize: 10 },
+        roseType: 'area',
+        data: [
+          { value: 620, name: '非常满意', itemStyle: { color: '#10b981' } },
+          { value: 380, name: '满意', itemStyle: { color: '#06b6d4' } },
+          { value: 180, name: '一般', itemStyle: { color: '#f59e0b' } },
+          { value: 65, name: '不满意', itemStyle: { color: '#ef4444' } },
+          { value: 41, name: '非常不满意', itemStyle: { color: '#991b1b' } }
+        ] }]
+    });
+  }
+
+  window.addEventListener('resize', () => { c1?.resize(); c2?.resize(); c3?.resize(); c4?.resize(); });
+}
+
+setTimeout(() => { if (document.getElementById('tab-admin').classList.contains('active')) initCharts(); }, 400);
+document.querySelector('[data-tab="tab-admin"]')?.addEventListener('click', () => setTimeout(initCharts, 250));
+
+// ===== 泉小新人物挥手交互 =====
+function qxxWaveHello() {
+  const img = document.getElementById('qxxHeroImg');
+  if (!img) return;
+  img.src = 'assets/wave.gif?t=' + Date.now();
+  showToast('嗨，我是泉小新 👋 有需要随时喊我～');
+  clearTimeout(window._qxxWaveT);
+  window._qxxWaveT = setTimeout(() => { img.src = 'assets/hero-wave.png'; }, 3200);
+}
+</script>
+
+<style>
+@keyframes fadeUp { from { opacity:0; transform:translateX(-50%) translateY(10px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+@keyframes dotPing { 0% { box-shadow:0 0 0 0 rgba(249,115,22,.5); } 70% { box-shadow:0 0 0 12px rgba(249,115,22,0); } 100% { box-shadow:0 0 0 0 rgba(249,115,22,0); } }
+</style>
+
+</body>
+</html>
