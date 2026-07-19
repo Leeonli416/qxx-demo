@@ -1063,6 +1063,201 @@ body::before {
 /* 对话气泡人物头像 */
 .chat-avatar.qxx-face { background:#fff !important; overflow:hidden; padding:0; color:transparent; }
 .chat-avatar.qxx-face img { width:100%; height:100%; object-fit:cover; object-position:top center; }
+
+/* ========================================== WorkBuddy 产品界面 ========================================== */
+.wb-app {
+  display: flex; min-height: calc(100vh - 56px); position: relative; z-index: 1;
+  background: linear-gradient(170deg, #f0f4fa 0%, #f8fafc 40%, #fef9f0 100%);
+}
+/* ---- 左侧连接器栏 ---- */
+.wb-connector-bar {
+  width: 56px; background: linear-gradient(180deg, #0f2b46 0%, #1a4270 60%, #1d4e89 100%);
+  display: flex; flex-direction: column; align-items: center; padding: 16px 0; gap: 4px;
+  flex-shrink: 0; position: relative; z-index: 10;
+}
+.wb-cb-divider { width: 28px; height: 1px; background: rgba(255,255,255,.12); margin: 8px 0 6px; }
+.wb-cb-label { font-size: 9px; color: rgba(255,255,255,.35); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2px; }
+.wb-connector-item {
+  width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center;
+  font-size: 19px; cursor: pointer; transition: all .22s ease; position: relative;
+  color: rgba(255,255,255,.55); background: transparent;
+}
+.wb-connector-item:hover { background: rgba(255,255,255,.08); color: rgba(255,255,255,.9); }
+.wb-connector-item.active { background: rgba(255,255,255,.14); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+.wb-connector-item .wb-ci-dot {
+  position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%;
+  background: #10b981; border: 1.5px solid #0f2b46;
+}
+.wb-connector-item .wb-ci-dot.warn { background: #f59e0b; }
+.wb-connector-item .wb-ci-tip {
+  position: absolute; left: 52px; top: 50%; transform: translateY(-50%); white-space: nowrap;
+  background: #1e293b; color: #fff; font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 7px;
+  pointer-events: none; opacity: 0; transition: opacity .18s ease; z-index: 20;
+}
+.wb-connector-item:hover .wb-ci-tip { opacity: 1; }
+
+/* ---- 中央工作区 ---- */
+.wb-workspace { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; min-width: 0; }
+.wb-ws-header {
+  display: flex; align-items: center; gap: 15px; padding: 15px 22px;
+  background: rgba(255,255,255,.82); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(0,0,0,.04); flex-shrink: 0;
+}
+.wb-ws-header .wb-ws-logo {
+  width: 34px; height: 34px; border-radius: 10px; flex: none;
+  background: linear-gradient(135deg, #0f2b46, #2563eb, #06b6d4);
+  display: grid; place-items: center; font-size: 17px; color: #fff;
+}
+.wb-ws-header .wb-ws-title { font-size: 15px; font-weight: 800; color: #0f2b46; letter-spacing: -.01em; }
+.wb-ws-header .wb-ws-subtitle { font-size: 11px; color: #64748b; margin-left: 4px; }
+.wb-ws-header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.wb-model-badge {
+  font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 100px;
+  background: linear-gradient(135deg, rgba(37,99,235,.08), rgba(6,182,212,.08));
+  color: #2563eb; border: 1px solid rgba(37,99,235,.15);
+}
+.wb-status-row { display: flex; align-items: center; gap: 16px; font-size: 10px; color: #94a3b8; }
+.wb-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: inline-block; margin-right: 4px; animation: pulse 2s infinite; }
+
+/* Chat View */
+.wb-chat-view { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+.wb-chat-view.active { display: flex; }
+.wb-chat-body { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; }
+.wb-chat-body::-webkit-scrollbar { width: 5px; }
+.wb-chat-body::-webkit-scrollbar-track { background: transparent; }
+.wb-chat-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,.08); border-radius: 100px; }
+
+/* Welcome area */
+.wb-welcome { text-align: center; padding: 40px 20px 30px; }
+.wb-welcome .wb-w-icon {
+  width: 60px; height: 60px; border-radius: 18px; margin: 0 auto 14px;
+  background: linear-gradient(135deg, #0f2b46, #2563eb, #06b6d4);
+  display: grid; place-items: center; font-size: 30px; color: #fff;
+  box-shadow: 0 12px 32px rgba(37,99,235,.25);
+}
+.wb-welcome h2 { font-size: 22px; font-weight: 900; color: #0f2b46; letter-spacing: -.02em; margin-bottom: 6px; }
+.wb-welcome p { font-size: 13px; color: #64748b; max-width: 420px; margin: 0 auto; line-height: 1.65; }
+.wb-quick-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
+.wb-qa-chip {
+  padding: 7px 15px; border-radius: 100px; font-size: 12px; font-weight: 600; cursor: pointer;
+  border: 1px solid #e2e8f0; background: #fff; color: #1e293b;
+  transition: all .2s ease; white-space: nowrap;
+}
+.wb-qa-chip:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; box-shadow: 0 2px 8px rgba(37,99,235,.08); }
+
+/* Chat messages */
+.wb-msg { display: flex; gap: 12px; max-width: 760px; }
+.wb-msg.user { align-self: flex-end; flex-direction: row-reverse; }
+.wb-msg-avatar {
+  width: 34px; height: 34px; border-radius: 10px; flex: none; display: grid; place-items: center;
+  font-size: 15px; color: #fff;
+}
+.wb-msg-avatar.user-av { background: linear-gradient(135deg, #f97316, #fb923c); }
+.wb-msg-avatar.ai-av { background: linear-gradient(135deg, #0f2b46, #2563eb); }
+.wb-msg-bubble {
+  padding: 12px 16px; border-radius: 14px; font-size: 13px; line-height: 1.65; position: relative;
+}
+.wb-msg.user .wb-msg-bubble { background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #1e293b; border-bottom-right-radius: 6px; }
+.wb-msg.ai .wb-msg-bubble { background: #fff; color: #1e293b; border-bottom-left-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.wb-msg-meta { font-size: 10px; color: #94a3b8; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+
+/* Inline connector badge in messages */
+.wb-connector-badge {
+  display: inline-flex; align-items: center; gap: 4px; margin: 8px 0;
+  padding: 4px 10px; border-radius: 100px; font-size: 10px; font-weight: 700;
+  background: linear-gradient(135deg, rgba(6,182,212,.08), rgba(37,99,235,.06));
+  color: #0891b2; border: 1px solid rgba(6,182,212,.18);
+}
+
+/* Mini stats in chat */
+.wb-chat-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 10px 0; }
+.wb-chat-stat {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 12px; padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+}
+.wb-chat-stat .cs-val { font-size: 20px; font-weight: 800; color: #1e293b; line-height: 1.2; }
+.wb-chat-stat .cs-label { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+.wb-chat-stat .cs-trend { font-size: 10px; font-weight: 700; margin-top: 4px; }
+.wb-chat-stat .cs-trend.up { color: #10b981; }
+.wb-chat-stat .cs-trend.down { color: #ef4444; }
+
+/* Mini alert in chat */
+.wb-chat-alert {
+  background: linear-gradient(135deg, #fef2f2, #fff5f5); border: 1px solid #fecaca; border-left: 4px solid #ef4444;
+  border-radius: 12px; padding: 12px 15px; margin: 8px 0;
+}
+.wb-chat-alert .cal-t { font-size: 12px; font-weight: 700; color: #dc2626; }
+.wb-chat-alert .cal-d { font-size: 11px; color: #64748b; margin-top: 4px; line-height: 1.55; }
+
+/* Chat input bar */
+.wb-input-bar {
+  padding: 14px 22px; border-top: 1px solid rgba(0,0,0,.04);
+  background: rgba(255,255,255,.82); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+.wb-input-bar input {
+  flex: 1; height: 42px; border: 1.5px solid #e2e8f0; border-radius: 100px; padding: 0 18px;
+  font-size: 13px; outline: none; background: #fff; color: #1e293b;
+  transition: border-color .2s ease;
+}
+.wb-input-bar input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+.wb-input-bar input::placeholder { color: #cbd5e1; }
+.wb-input-send {
+  width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer; flex: none;
+  background: linear-gradient(135deg, #2563eb, #06b6d4); color: #fff; font-size: 18px;
+  display: grid; place-items: center; transition: all .2s ease;
+}
+.wb-input-send:hover { transform: scale(1.05); box-shadow: 0 4px 14px rgba(37,99,235,.3); }
+
+/* Panel View (when connector/skill opens) */
+.wb-panel-view { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+.wb-panel-view.active { display: flex; }
+.wb-panel-header {
+  display: flex; align-items: center; gap: 12px; padding: 14px 22px;
+  background: rgba(255,255,255,.9); border-bottom: 1px solid rgba(0,0,0,.04); flex-shrink: 0;
+}
+.wb-panel-back {
+  width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer;
+  background: #f1f5f9; color: #475569; font-size: 16px; display: grid; place-items: center;
+  transition: all .2s ease; flex: none;
+}
+.wb-panel-back:hover { background: #e2e8f0; color: #1e293b; }
+.wb-panel-title { font-size: 14px; font-weight: 800; color: #0f2b46; display: flex; align-items: center; gap: 8px; }
+.wb-panel-body { flex: 1; overflow-y: auto; padding: 22px; }
+.wb-panel-body::-webkit-scrollbar { width: 5px; }
+.wb-panel-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,.06); border-radius: 100px; }
+
+.wb-panel-connector-tag {
+  font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 100px;
+  background: linear-gradient(135deg, rgba(6,182,212,.1), rgba(37,99,235,.06));
+  color: #0891b2; border: 1px solid rgba(6,182,212,.2);
+}
+
+/* ---- 右侧技能面板 ---- */
+.wb-skills-panel {
+  width: 240px; background: rgba(255,255,255,.75); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border-left: 1px solid rgba(0,0,0,.04); display: flex; flex-direction: column; flex-shrink: 0;
+}
+.wb-sp-header {
+  padding: 18px 18px 12px; font-size: 11px; font-weight: 700; color: #94a3b8;
+  letter-spacing: .06em; text-transform: uppercase;
+}
+.wb-skills-list { flex: 1; overflow-y: auto; padding: 0 10px 16px; }
+.wb-skills-list::-webkit-scrollbar { width: 4px; }
+.wb-skills-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,.04); border-radius: 100px; }
+.wb-skill-group { margin-bottom: 12px; }
+.wb-skill-group-title { font-size: 10px; font-weight: 700; color: #cbd5e1; padding: 8px 10px 4px; letter-spacing: .04em; }
+.wb-skill-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+  cursor: pointer; font-size: 12px; font-weight: 500; color: #475569; transition: all .18s ease;
+}
+.wb-skill-item:hover { background: rgba(37,99,235,.04); color: #2563eb; }
+.wb-skill-item .sk-icon { width: 28px; height: 28px; border-radius: 8px; background: #f1f5f9; display: grid; place-items: center; font-size: 14px; flex: none; }
+.wb-skill-item:hover .sk-icon { background: #eff6ff; }
+.wb-skill-item .sk-badge {
+  margin-left: auto; font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 100px;
+  background: #eff6ff; color: #2563eb;
+}
 </style>
 </head>
 <body>
@@ -1869,293 +2064,260 @@ body::before {
   </div>
 </div>
 
-<!-- ========================================== TAB3: 后台管理端 ========================================== -->
+<!-- ========================================== TAB3: WorkBuddy 管理端 ========================================== -->
 <div class="tab-content" id="tab-admin">
-  <div class="backend-layout">
-    <div class="backend-sidebar">
-      <div class="wb-brand">
-        <div class="wb-brand-logo">
-          <div class="wb-mark">🧩</div>
-          <div class="wb-tt"><b>WorkBuddy</b><small>泉小新 · AI 智能中枢</small></div>
-        </div>
-        <div class="wb-role-card">
-          <div class="rc-av">👤</div>
-          <div class="rc-tt"><b>王建国</b><small>大明湖街道 · 社区管理员</small></div>
-        </div>
+  <div class="wb-app">
+    <!-- ===== 左侧：连接器栏 ===== -->
+    <aside class="wb-connector-bar" id="wbConnectorBar">
+      <div class="wb-cb-label" style="margin-bottom:6px;">连接器</div>
+      <div class="wb-connector-item active" data-connector="lexiang" onclick="wbOpenConnector('lexiang')" title="乐享知识库">
+        🧩<span class="wb-ci-dot"></span>
+        <span class="wb-ci-tip">乐享知识库 · 已连接</span>
       </div>
-      <div class="sidebar-nav">
-        <div class="sidebar-item active" data-apage="dashboard" onclick="adminNav('dashboard')">
-          <span class="sidebar-icon">🧩</span> AI 智能中枢
-        </div>
-        <div class="sidebar-item" data-apage="content" onclick="adminNav('content')">
-          <span class="sidebar-icon">📱</span> 小程序管理
-        </div>
-        <div class="sidebar-item" data-apage="appeals" onclick="adminNav('appeals')">
-          <span class="sidebar-icon">📝</span> 诉求工单管理
-        </div>
-        <div class="sidebar-item" data-apage="suggestions" onclick="adminNav('suggestions')">
-          <span class="sidebar-icon">💡</span> 建议管理
-        </div>
-        <div class="sidebar-item" data-apage="sentiment-admin" onclick="adminNav('sentiment-admin')">
-          <span class="sidebar-icon">📡</span> 舆情管理
-        </div>
-        <div class="sidebar-item" data-apage="stations" onclick="adminNav('stations')">
-          <span class="sidebar-icon">🏠</span> 泉心驿站管理
-        </div>
-        <div class="sidebar-item" data-apage="knowledge" onclick="adminNav('knowledge')">
-          <span class="sidebar-icon">📚</span> 知识库管理
-        </div>
-        <div class="sidebar-item" data-apage="users" onclick="adminNav('users')">
-          <span class="sidebar-icon">👥</span> 用户权限管理
-        </div>
-        <div class="sidebar-item" data-apage="messages-admin" onclick="adminNav('messages-admin')">
-          <span class="sidebar-icon">🔔</span> 消息推送管理
-        </div>
-        <div class="sidebar-item" data-apage="config" onclick="adminNav('config')">
-          <span class="sidebar-icon">⚙️</span> 系统配置
-        </div>
+      <div class="wb-connector-item" data-connector="wecom" onclick="wbOpenConnector('wecom')" title="企业微信">
+        💬<span class="wb-ci-dot"></span>
+        <span class="wb-ci-tip">企业微信 · 已连接</span>
       </div>
-    </div>
-    <div class="backend-main" id="adminMain">
-      <!-- AI 智能中枢（数据看板） -->
-      <div class="backend-page active" data-apage="dashboard">
-        <div class="page-header">
-          <h3>🧩 WorkBuddy AI 智能中枢</h3>
-          <div style="display:flex;align-items:center;gap:16px;">
-            <span style="font-size:11px;color:var(--text-3);">数据更新：2026-07-02 09:30:15</span>
-            <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#10b981;font-weight:600;"><span style="width:6px;height:6px;background:#10b981;border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span>实时</span>
+      <div class="wb-connector-item" data-connector="dashboard" onclick="wbOpenConnector('dashboard')" title="数据看板">
+        📊<span class="wb-ci-dot"></span>
+        <span class="wb-ci-tip">数据看板 · 已连接</span>
+      </div>
+      <div class="wb-connector-item" data-connector="sentiment" onclick="wbOpenConnector('sentiment')" title="舆情监测">
+        📡<span class="wb-ci-dot" style="background:#f59e0b;"></span>
+        <span class="wb-ci-tip">舆情监测 · 3条预警</span>
+      </div>
+      <div class="wb-cb-divider"></div>
+      <div class="wb-connector-item" data-connector="tencent-docs" onclick="wbOpenConnector('tencent-docs')" title="腾讯文档">
+        📄<span class="wb-ci-dot"></span>
+        <span class="wb-ci-tip">腾讯文档 · 已连接</span>
+      </div>
+      <div class="wb-connector-item" data-connector="tapid" onclick="wbOpenConnector('tapid')" title="TAPD协同">
+        📋<span class="wb-ci-dot"></span>
+        <span class="wb-ci-tip">TAPD · 已连接</span>
+      </div>
+      <div style="flex:1;"></div>
+      <div class="wb-connector-item" onclick="wbShowToast('MCP 连接器市场：支持接入 GitHub、飞书、金蝶、企查查等 30+ 行业工具')" title="添加连接器" style="opacity:.5;">
+        ➕<span class="wb-ci-tip">添加 MCP 连接器</span>
+      </div>
+      <div class="wb-connector-item" data-connector="settings" onclick="wbOpenConnector('settings')" title="连接器管理" style="opacity:.55;">
+        ⚙️<span class="wb-ci-tip">连接器管理</span>
+      </div>
+    </aside>
+
+    <!-- ===== 中央：WorkBuddy AI 工作区 ===== -->
+    <main class="wb-workspace" id="wbWorkspace">
+      <!-- 顶部栏 -->
+      <div class="wb-ws-header">
+        <div class="wb-ws-logo">🧩</div>
+        <div>
+          <div class="wb-ws-title">WorkBuddy · 泉小新 AI 中枢</div>
+          <div class="wb-ws-subtitle">社区管理员 · 王建国 | 大明湖街道</div>
+        </div>
+        <div class="wb-ws-header-right">
+          <div class="wb-status-row">
+            <span><span class="wb-status-dot"></span>全部连接器在线</span>
+            <span style="color:#cbd5e1;">|</span>
+            <span>7 Connectors</span>
           </div>
+          <div class="wb-model-badge">🤖 DeepSeek-V3</div>
         </div>
-        <!-- WorkBuddy AI 中枢能力横幅 -->
-        <div class="wb-hero-banner">
-          <div class="wb-hb-top">
-            <div class="hb-mark">🧩</div>
+      </div>
+
+      <!-- 对话视图（默认） -->
+      <div class="wb-chat-view active" id="wbChatView">
+        <div class="wb-chat-body" id="wbChatBody">
+          <!-- 欢迎区 -->
+          <div class="wb-welcome" id="wbWelcome">
+            <div class="wb-w-icon">🧩</div>
+            <h2>你好，王建国</h2>
+            <p>我是 WorkBuddy，你的社区治理 AI 搭档。我已通过连接器接入了乐享知识库、企业微信、数据看板等系统，随时听你调遣。</p>
+            <div class="wb-quick-actions">
+              <span class="wb-qa-chip" onclick="wbQuickAsk('帮我看看本月诉求处理情况')">📊 本月诉求概览</span>
+              <span class="wb-qa-chip" onclick="wbQuickAsk('外卖骑手群今天有什么异常吗？')">📡 群聊舆情巡查</span>
+              <span class="wb-qa-chip" onclick="wbQuickAsk('更新一下最新的高温补贴政策到知识库')">📚 更新高温补贴政策</span>
+              <span class="wb-qa-chip" onclick="wbQuickAsk('帮我生成一份本月社区治理月报')">📄 生成治理月报</span>
+            </div>
+          </div>
+
+          <!-- 预置对话场景 -- 数据看板查询 -->
+          <div class="wb-msg user wb-scene" data-scene="1">
+            <div class="wb-msg-avatar user-av">👤</div>
             <div>
-              <h3>WorkBuddy · 泉小新的 AI 大脑</h3>
-              <p>作为社区管理员，你的诉求识别、政策问答、数据研判，都由 WorkBuddy 智能中枢自动驱动</p>
+              <div class="wb-msg-bubble">帮我看看本月诉求处理情况</div>
+              <div class="wb-msg-meta">王建国 · 刚才</div>
             </div>
           </div>
-          <div class="wb-hb-caps">
-            <div class="wb-cap">
-              <div class="cap-t">🤖 智能理解 · 自动成单</div>
-              <div class="cap-d">7×24 抓取群聊 / 一句话诉求，秒级识别分类、自动生成工单并派发</div>
-              <span class="cap-badge">本月 AI 成单 1,286 件</span>
-            </div>
-            <div class="wb-cap">
-              <div class="cap-t">📚 知识库 RAG · 精准问答</div>
-              <div class="cap-d">本地政策库 + 大模型，为居民与工作人员提供有出处的政策解答</div>
-              <span class="cap-badge">问答准确率 99.2%</span>
-            </div>
-            <div class="wb-cap">
-              <div class="cap-t">📊 数据贯通 · 智能研判</div>
-              <div class="cap-d">打通四级数据，自动生成看板、舆情预警与治理建议</div>
-              <span class="cap-badge">接入 186 个监测群</span>
-            </div>
-          </div>
-        </div>
-        <div class="stats-row">
-          <div class="stat-card appeals">
-            <div class="stat-icon blue">📝</div>
-            <div class="stat-info">
-              <div class="stat-val">1,286</div>
-              <div class="stat-trend up">↑ 12.5% 较上月</div>
-              <div class="stat-label">诉求总量</div>
-            </div>
-          </div>
-          <div class="stat-card rate">
-            <div class="stat-icon green">✅</div>
-            <div class="stat-info">
-              <div class="stat-val">92.4%</div>
-              <div class="stat-trend up">↑ 2.1% 较上月</div>
-              <div class="stat-label">办结率</div>
+          <div class="wb-msg ai wb-scene" data-scene="1">
+            <div class="wb-msg-avatar ai-av">🧩</div>
+            <div>
+              <div class="wb-msg-bubble">
+                好的，正在通过 <b>📊 数据看板连接器</b> 查询泉小新平台本月数据……
+                <div class="wb-connector-badge">📊 数据看板连接器 · 实时查询</div>
+                <div class="wb-chat-stats">
+                  <div class="wb-chat-stat">
+                    <div class="cs-val">1,286</div>
+                    <div class="cs-label">本月诉求总量</div>
+                    <div class="cs-trend up">↑ 12.5%</div>
+                  </div>
+                  <div class="wb-chat-stat">
+                    <div class="cs-val">92.4%</div>
+                    <div class="cs-label">办结率</div>
+                    <div class="cs-trend up">↑ 2.1%</div>
+                  </div>
+                  <div class="wb-chat-stat">
+                    <div class="cs-val">3,720</div>
+                    <div class="cs-label">AI问答总量</div>
+                    <div class="cs-trend up">↑ 15.7%</div>
+                  </div>
+                </div>
+                本月办结率保持稳定上升趋势，AI 成单占比已达 <b>68%</b>。需要查看详细看板吗？
+                <div style="margin-top:10px;">
+                  <span style="display:inline-block;padding:6px 14px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;" onclick="wbOpenConnector('dashboard')">📊 打开完整数据看板 →</span>
+                </div>
+              </div>
+              <div class="wb-msg-meta">🧩 WorkBuddy · 刚才 · 通过📊数据看板连接器</div>
             </div>
           </div>
-          <div class="stat-card suggestions">
-            <div class="stat-icon amber">💡</div>
-            <div class="stat-info">
-              <div class="stat-val">458</div>
-              <div class="stat-trend up">↑ 8.3% 较上月</div>
-              <div class="stat-label">建议总量</div>
+
+          <!-- 预置对话场景 -- 舆情监测 -->
+          <div class="wb-msg user wb-scene" data-scene="2">
+            <div class="wb-msg-avatar user-av">👤</div>
+            <div>
+              <div class="wb-msg-bubble">外卖骑手群今天有什么异常吗？</div>
+              <div class="wb-msg-meta">王建国 · 5分钟前</div>
             </div>
           </div>
-          <div class="stat-card qa">
-            <div class="stat-icon cyan">🤖</div>
-            <div class="stat-info">
-              <div class="stat-val">3,720</div>
-              <div class="stat-trend up">↑ 15.7% 较上月</div>
-              <div class="stat-label">问答总量</div>
+          <div class="wb-msg ai wb-scene" data-scene="2">
+            <div class="wb-msg-avatar ai-av">🧩</div>
+            <div>
+              <div class="wb-msg-bubble">
+                正在通过 <b>💬 企业微信连接器</b> 巡查 186 个监测群……
+                <div class="wb-connector-badge">💬 企业微信连接器 · 实时监测</div>
+                <div class="wb-chat-alert" style="margin-bottom:8px;">
+                  <div class="cal-t">🔴 严重预警 · 外卖骑手群(3个)</div>
+                  <div class="cal-d">关键词"派单距离·超时扣款"扩散速度 ↑320%，已触发自动工单生成<br>→ 工单编号：<b>GD-2026-0715</b> · 已自动派发至王建国</div>
+                </div>
+                <div class="wb-chat-alert" style="background:linear-gradient(135deg,#fffbeb,#fffdf5);border-color:#fcd34d;border-left-color:#f59e0b;">
+                  <div class="cal-t" style="color:#d97706;">🟠 关注提醒 · 网约车司机群(2个)</div>
+                  <div class="cal-d">"充电桩不足"持续讨论中，扩散速度 ↑120%，建议关注</div>
+                </div>
+                <div style="margin-top:10px;">
+                  <span style="display:inline-block;padding:6px 14px;background:#fef2f2;color:#dc2626;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;margin-right:6px;" onclick="wbOpenConnector('sentiment')">🔴 查看舆情详情 →</span>
+                  <span style="display:inline-block;padding:6px 14px;background:#eff6ff;color:#2563eb;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;" onclick="wbOpenSkill('appeals')">📝 处理工单 GD-0715 →</span>
+                </div>
+              </div>
+              <div class="wb-msg-meta">🧩 WorkBuddy · 5分钟前 · 通过💬企业微信连接器</div>
+            </div>
+          </div>
+
+          <!-- 预置对话场景 -- 知识库更新 -->
+          <div class="wb-msg user wb-scene" data-scene="3">
+            <div class="wb-msg-avatar user-av">👤</div>
+            <div>
+              <div class="wb-msg-bubble">更新一下最新的高温补贴政策到知识库</div>
+              <div class="wb-msg-meta">王建国 · 10分钟前</div>
+            </div>
+          </div>
+          <div class="wb-msg ai wb-scene" data-scene="3">
+            <div class="wb-msg-avatar ai-av">🧩</div>
+            <div>
+              <div class="wb-msg-bubble">
+                正在通过 <b>🧩 乐享知识库连接器</b> 同步最新政策……
+                <div class="wb-connector-badge">🧩 乐享知识库连接器 · RAG 更新</div>
+                <div style="margin:8px 0;">
+                  ✅ <b>已更新 3 条知识条目：</b><br>
+                  <span style="font-size:11px;color:#64748b;">· 济南市2026年高温补贴发放标准（来源：市人社局官网）<br>
+                  · 外卖骑手/快递员高温作业防护指引<br>
+                  · 高温天气预警响应流程 v2.1</span>
+                </div>
+                知识库问答准确率现已更新为 <b>99.2%</b>，居民和工作人员均可获得最新政策解答。
+                <div style="margin-top:10px;">
+                  <span style="display:inline-block;padding:6px 14px;background:#eff6ff;color:#2563eb;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;" onclick="wbOpenSkill('knowledge')">📚 打开知识库管理 →</span>
+                </div>
+              </div>
+              <div class="wb-msg-meta">🧩 WorkBuddy · 10分钟前 · 通过🧩乐享知识库连接器</div>
             </div>
           </div>
         </div>
-        <div class="chart-row">
-          <div class="chart-box"><h4>📈 诉求趋势（近6个月）</h4><div class="chart-inner" id="chart1"></div></div>
-          <div class="chart-box"><h4>🍩 诉求分类分布</h4><div class="chart-inner" id="chart2"></div></div>
-        </div>
-        <div class="chart-row equal">
-          <div class="chart-box"><h4>⏱️ 平均处理时效趋势（天）</h4><div class="chart-inner sm" id="chart3"></div></div>
-          <div class="chart-box"><h4>⭐ 满意度评分分布</h4><div class="chart-inner sm" id="chart4"></div></div>
+
+        <!-- 底部输入区 -->
+        <div class="wb-input-bar">
+          <input type="text" id="wbChatInput" placeholder="向 WorkBuddy 发出指令，例如：帮我查一下本月办结率……" onkeydown="if(event.key==='Enter') wbSendMsg()">
+          <button class="wb-input-send" onclick="wbSendMsg()" title="发送">↑</button>
         </div>
       </div>
-      <!-- 知识库管理 -->
-      <div class="backend-page" data-apage="knowledge">
-        <div class="page-header"><h3>📚 知识库管理 <span style="font-size:11px;font-weight:700;color:#2563eb;background:#eff6ff;padding:3px 10px;border-radius:100px;margin-left:8px;">WorkBuddy RAG 数据源</span></h3><button class="btn btn-primary">+ 新建知识</button></div>
-        <div class="kb-layout">
-          <div class="kb-tree">
-            <div class="kb-tree-item active">📁 政策法规</div>
-            <div class="kb-tree-item">📁 办事服务指南</div>
-            <div class="kb-tree-item">📁 常见问题</div>
-            <div class="kb-tree-item">📁 服务活动</div>
-            <div class="kb-tree-item">📁 通知公告</div>
-          </div>
-          <div class="kb-list">
-            <table class="data-table">
-              <thead>
-                <tr><th>知识标题</th><th>分类</th><th>创建时间</th><th>引用次数</th><th>状态</th><th>操作</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>济南市新就业形态劳动者权益保障实施办法</td><td><span class="tag tag-primary">政策法规</span></td><td>2026-06-15</td><td>128</td><td><span class="tag tag-success">已发布</span></td><td><a href="#" style="color:var(--primary);">编辑</a> <a href="#" style="color:var(--danger);">删除</a></td></tr>
-                <tr><td>外卖配送员公租房申请指南</td><td><span class="tag tag-info">办事指南</span></td><td>2026-06-20</td><td>256</td><td><span class="tag tag-success">已发布</span></td><td><a href="#" style="color:var(--primary);">编辑</a></td></tr>
-                <tr><td>网约车驾驶员从业资格证办理流程</td><td><span class="tag tag-info">办事指南</span></td><td>2026-06-22</td><td>89</td><td><span class="tag tag-success">已发布</span></td><td><a href="#" style="color:var(--primary);">编辑</a></td></tr>
-                <tr><td>高温补贴发放标准及申领方式（2026版）</td><td><span class="tag tag-primary">政策法规</span></td><td>2026-06-28</td><td>312</td><td><span class="tag tag-warning">审核中</span></td><td><a href="#" style="color:var(--primary);">编辑</a></td></tr>
-              </tbody>
-            </table>
-          </div>
+
+      <!-- 面板视图（连接器/技能打开时显示） -->
+      <div class="wb-panel-view" id="wbPanelView">
+        <div class="wb-panel-header">
+          <button class="wb-panel-back" onclick="wbBackToChat()" title="返回对话">←</button>
+          <div class="wb-panel-title" id="wbPanelTitle">面板</div>
+          <span class="wb-panel-connector-tag" id="wbPanelConnectorTag"></span>
+        </div>
+        <div class="wb-panel-body" id="wbPanelBody">
+          <!-- 动态注入内容 -->
         </div>
       </div>
-      <!-- 用户权限管理 -->
-      <div class="backend-page" data-apage="users">
-        <div class="page-header"><h3>👥 用户权限管理</h3><button class="btn btn-primary">+ 新增用户</button></div>
-        <table class="data-table">
-          <thead>
-            <tr><th>姓名</th><th>角色</th><th>所属组织</th><th>状态</th><th>最后登录</th><th>操作</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>王建国</td><td><span class="tag tag-primary">街道管理员</span></td><td>大明湖街道</td><td><span class="tag tag-success">正常</span></td><td>2026-07-02 09:15</td><td><a href="#" style="color:var(--primary);">编辑</a> <a href="#" style="color:var(--danger);">禁用</a></td></tr>
-            <tr><td>李明华</td><td><span class="tag tag-info">社区工作者</span></td><td>大明湖街道·第3网格</td><td><span class="tag tag-success">正常</span></td><td>2026-07-01 16:40</td><td><a href="#" style="color:var(--primary);">编辑</a></td></tr>
-            <tr><td>张小红</td><td><span class="tag tag-info">社区工作者</span></td><td>泉城路街道</td><td><span class="tag tag-success">正常</span></td><td>2026-07-02 08:30</td><td><a href="#" style="color:var(--primary);">编辑</a></td></tr>
-            <tr><td>赵德民</td><td><span class="tag tag-warning">区级管理员</span></td><td>历下区委社工部</td><td><span class="tag tag-success">正常</span></td><td>2026-07-01 14:20</td><td><a href="#" style="color:var(--primary);">编辑</a></td></tr>
-            <tr><td>陈志远</td><td><span class="tag tag-info">社区工作者</span></td><td>趵突泉街道</td><td><span class="tag tag-danger">已禁用</span></td><td>2026-05-20 10:00</td><td><a href="#" style="color:var(--primary);">编辑</a> <a href="#" style="color:var(--success);">启用</a></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <!-- 系统配置 -->
-      <div class="backend-page" data-apage="config">
-        <div class="page-header"><h3>⚙️ 系统配置</h3></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-          <div class="card"><h4 style="margin-bottom:12px;">📱 小程序服务入口配置</h4>
-            <table class="data-table"><thead><tr><th>服务名称</th><th>图标</th><th>状态</th><th>排序</th></tr></thead><tbody>
-              <tr><td>提建议</td><td>💡</td><td><span class="tag tag-success">显示</span></td><td>1</td></tr>
-              <tr><td>报诉求</td><td>📝</td><td><span class="tag tag-success">显示</span></td><td>2</td></tr>
-              <tr><td>智能问答</td><td>🤖</td><td><span class="tag tag-success">显示</span></td><td>3</td></tr>
-              <tr><td>泉城星光</td><td>⭐</td><td><span class="tag tag-success">显示</span></td><td>4</td></tr>
-              <tr><td>泉新公寓</td><td>🏠</td><td><span class="tag tag-success">显示</span></td><td>5</td></tr>
-              <tr><td>泉心驿站</td><td>📍</td><td><span class="tag tag-success">显示</span></td><td>6</td></tr>
-            </tbody></table>
+    </main>
+
+    <!-- ===== 右侧：技能面板 ===== -->
+    <aside class="wb-skills-panel" id="wbSkillsPanel">
+      <div class="wb-sp-header">🧰 社区治理技能包</div>
+      <div class="wb-skills-list">
+        <div class="wb-skill-group">
+          <div class="wb-skill-group-title">数据与监测</div>
+          <div class="wb-skill-item" onclick="wbOpenSkill('dashboard')">
+            <span class="sk-icon">📊</span> 数据运营看板
+            <span class="sk-badge">实时</span>
           </div>
-          <div class="card"><h4 style="margin-bottom:12px;">💬 欢迎词与消息模板</h4>
-            <div class="form-group"><label class="form-label">新入群欢迎词</label>
-              <textarea class="form-textarea" style="height:80px;">欢迎加入泉小新服务群！🎉 我是您的智能助手，您可以在群里直接@我提问，也可以点击下方小程序卡片进入泉小新平台～</textarea></div>
-            <div class="form-group"><label class="form-label">工单推送模板</label>
-              <textarea class="form-textarea" style="height:60px;">【新工单】编号{工单号}：{诉求摘要}，请及时处理。</textarea></div>
-            <button class="btn btn-primary">保存配置</button>
+          <div class="wb-skill-item" onclick="wbOpenSkill('sentiment')">
+            <span class="sk-icon">📡</span> 群聊舆情监测
+            <span class="sk-badge" style="background:#fef2f2;color:#dc2626;">3预警</span>
           </div>
         </div>
-      </div>
-      <!-- 小程序管理 -->
-      <div class="backend-page" data-apage="content">
-        <div class="page-header"><h3>📱 小程序内容管理</h3><button class="btn btn-primary">+ 新建内容</button></div>
-        <div style="display:flex;gap:12px;margin-bottom:16px;">
-          <span class="tag tag-primary" style="cursor:pointer;">全部</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">Banner</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">服务入口</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">资讯动态</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">服务详情</span>
+        <div class="wb-skill-group">
+          <div class="wb-skill-group-title">服务运营</div>
+          <div class="wb-skill-item" onclick="wbOpenSkill('appeals')">
+            <span class="sk-icon">📝</span> 诉求工单处理
+            <span class="sk-badge">86待办</span>
+          </div>
+          <div class="wb-skill-item" onclick="wbOpenSkill('suggestions')">
+            <span class="sk-icon">💡</span> 居民建议管理
+            <span class="sk-badge">32待审</span>
+          </div>
+          <div class="wb-skill-item" onclick="wbOpenSkill('content')">
+            <span class="sk-icon">📱</span> 小程序内容管理
+          </div>
+          <div class="wb-skill-item" onclick="wbOpenSkill('messages')">
+            <span class="sk-icon">🔔</span> 消息推送管理
+          </div>
         </div>
-        <table class="data-table">
-          <thead><tr><th>内容标题</th><th>类型</th><th>所属模块</th><th>状态</th><th>更新时间</th><th>操作</th></tr></thead>
-          <tbody>
-            <tr><td>泉心服务 · 暖心同行</td><td><span class="tag tag-warning">Banner</span></td><td>首页轮播</td><td><span class="tag tag-success">已发布</span></td><td>07-02</td><td><a href="#" style="color:var(--primary-light);">编辑</a> <a href="#" style="color:var(--danger);">下架</a></td></tr>
-            <tr><td>泉新公寓 · 温暖入住</td><td><span class="tag tag-warning">Banner</span></td><td>首页轮播</td><td><span class="tag tag-success">已发布</span></td><td>07-01</td><td><a href="#" style="color:var(--primary-light);">编辑</a></td></tr>
-            <tr><td>泉新公寓入住申请指南</td><td><span class="tag tag-info">服务详情</span></td><td>泉新公寓</td><td><span class="tag tag-success">已发布</span></td><td>06-28</td><td><a href="#" style="color:var(--primary-light);">编辑</a></td></tr>
-            <tr><td>"泉城星光"技能培训报名通知</td><td><span class="tag tag-info">资讯动态</span></td><td>泉城星光</td><td><span class="tag tag-warning">审核中</span></td><td>07-02</td><td><a href="#" style="color:var(--primary-light);">编辑</a> <a href="#" style="color:var(--success);">发布</a></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <!-- 诉求工单管理 -->
-      <div class="backend-page" data-apage="appeals">
-        <div class="page-header"><h3>📝 诉求工单管理</h3><button class="btn btn-primary">+ 新建工单</button></div>
-        <div style="display:flex;gap:12px;margin-bottom:16px;">
-          <span class="tag tag-primary" style="cursor:pointer;">全部(1286)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">待分配(86)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">处理中(210)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">已办结(990)</span>
+        <div class="wb-skill-group">
+          <div class="wb-skill-group-title">平台管理</div>
+          <div class="wb-skill-item" onclick="wbOpenSkill('knowledge')">
+            <span class="sk-icon">📚</span> 知识库管理
+          </div>
+          <div class="wb-skill-item" onclick="wbOpenSkill('stations')">
+            <span class="sk-icon">🏠</span> 泉心驿站管理
+          </div>
+          <div class="wb-skill-item" onclick="wbOpenSkill('users')">
+            <span class="sk-icon">👥</span> 用户权限管理
+          </div>
+          <div class="wb-skill-item" onclick="wbOpenSkill('config')">
+            <span class="sk-icon">⚙️</span> 系统配置
+          </div>
         </div>
-        <table class="data-table">
-          <thead><tr><th>工单编号</th><th>诉求分类</th><th>诉求人</th><th>提交时间</th><th>处理人</th><th>状态</th><th>操作</th></tr></thead>
-          <tbody>
-            <tr><td>GD-2026-0712</td><td>劳务纠纷</td><td>李师傅</td><td>07-02 08:35</td><td>待分配</td><td><span class="tag tag-danger">待分配</span></td><td><a href="#" style="color:var(--primary-light);">分配</a></td></tr>
-            <tr><td>GD-2026-0708</td><td>社会保障</td><td>赵师傅</td><td>07-01 15:20</td><td>王建国</td><td><span class="tag tag-warning">处理中</span></td><td><a href="#" style="color:var(--primary-light);">跟进</a></td></tr>
-            <tr><td>GD-2026-0695</td><td>权益保障</td><td>孙女士</td><td>06-30 11:00</td><td>李明华</td><td><span class="tag tag-success">已办结</span></td><td><a href="#" style="color:var(--primary-light);">查看</a></td></tr>
-            <tr><td>GD-2026-0688</td><td>住房问题</td><td>刘师傅</td><td>06-28 16:45</td><td>张小红</td><td><span class="tag tag-success">已办结</span></td><td><a href="#" style="color:var(--primary-light);">查看</a></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <!-- 建议管理 -->
-      <div class="backend-page" data-apage="suggestions">
-        <div class="page-header"><h3>💡 建议管理</h3></div>
-        <div style="display:flex;gap:12px;margin-bottom:16px;">
-          <span class="tag tag-primary" style="cursor:pointer;">全部(458)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">待审核(32)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">已采纳(286)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">已回复(140)</span>
+        <div class="wb-skill-group">
+          <div class="wb-skill-group-title">自动化</div>
+          <div class="wb-skill-item" onclick="wbShowToast('⏰ 定时任务：每日 9:00 抓取舆情热点；每周五 17:00 生成周报')">
+            <span class="sk-icon">⏰</span> 定时任务
+          </div>
+          <div class="wb-skill-item" onclick="wbShowToast('📋 工单自动分派规则：按诉求分类→对应网格员')">
+            <span class="sk-icon">🔄</span> 自动分派规则
+          </div>
         </div>
-        <table class="data-table">
-          <thead><tr><th>建议标题</th><th>类型</th><th>提交人</th><th>提交时间</th><th>采纳状态</th><th>操作</th></tr></thead>
-          <tbody>
-            <tr><td>泉城路增设换电柜建议</td><td>设施建设</td><td>张师傅</td><td>07-01 16:20</td><td><span class="tag tag-success">已采纳</span></td><td><a href="#" style="color:var(--primary-light);">查看</a></td></tr>
-            <tr><td>增加夜间服务窗口建议</td><td>服务改进</td><td>王师傅</td><td>06-29 22:10</td><td><span class="tag tag-warning">待审核</span></td><td><a href="#" style="color:var(--primary-light);">审核</a></td></tr>
-            <tr><td>增加法律咨询服务时间</td><td>政策建议</td><td>赵女士</td><td>06-28 14:30</td><td><span class="tag tag-success">已采纳</span></td><td><a href="#" style="color:var(--primary-light);">查看</a></td></tr>
-          </tbody>
-        </table>
       </div>
-      <!-- 舆情管理 -->
-      <div class="backend-page" data-apage="sentiment-admin">
-        <div class="page-header"><h3>📡 舆情管理</h3></div>
-        <div class="stats-row">
-          <div class="stat-card"><div class="stat-icon blue">🔴</div><div class="stat-info"><div class="stat-val">3</div><div class="stat-label">严重预警</div></div></div>
-          <div class="stat-card"><div class="stat-icon amber">🟠</div><div class="stat-info"><div class="stat-val">8</div><div class="stat-label">警告关注</div></div></div>
-          <div class="stat-card"><div class="stat-icon green">🟢</div><div class="stat-info"><div class="stat-val">186</div><div class="stat-label">正常监测群</div></div></div>
-          <div class="stat-card"><div class="stat-icon cyan">🤖</div><div class="stat-info"><div class="stat-val">99.2%</div><div class="stat-label">AI识别准确率</div></div></div>
-        </div>
-        <table class="data-table">
-          <thead><tr><th>预警等级</th><th>关键词</th><th>涉及群聊</th><th>触发时间</th><th>扩散速度</th><th>处置状态</th><th>操作</th></tr></thead>
-          <tbody>
-            <tr><td><span class="tag tag-danger">严重</span></td><td>派单距离·超时扣款</td><td>外卖骑手群(3个)</td><td>07-02 09:15</td><td>↑320%</td><td><span class="tag tag-warning">处理中</span></td><td><a href="#" style="color:var(--primary-light);">处置</a></td></tr>
-            <tr><td><span class="tag tag-warning">警告</span></td><td>充电桩不足</td><td>网约车司机群(2个)</td><td>07-01 16:40</td><td>↑120%</td><td><span class="tag tag-primary">已派单</span></td><td><a href="#" style="color:var(--primary-light);">跟进</a></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <!-- 泉心驿站管理 -->
-      <div class="backend-page" data-apage="stations">
-        <div class="page-header"><h3>🏠 泉心驿站管理</h3><button class="btn btn-primary">+ 新增驿站</button></div>
-        <div class="stats-row">
-          <div class="stat-card"><div class="stat-icon blue">🏠</div><div class="stat-info"><div class="stat-val">32</div><div class="stat-label">驿站总数</div></div></div>
-          <div class="stat-card"><div class="stat-icon green">✅</div><div class="stat-info"><div class="stat-val">28</div><div class="stat-label">运营中</div></div></div>
-          <div class="stat-card"><div class="stat-icon amber">👥</div><div class="stat-info"><div class="stat-val">1,250</div><div class="stat-label">月均服务人次</div></div></div>
-          <div class="stat-card"><div class="stat-icon cyan">⭐</div><div class="stat-info"><div class="stat-val">4.8</div><div class="stat-label">平均评分</div></div></div>
-        </div>
-        <table class="data-table">
-          <thead><tr><th>驿站名称</th><th>所属区域</th><th>地址</th><th>开放时间</th><th>容纳人数</th><th>状态</th><th>操作</th></tr></thead>
-          <tbody>
-            <tr><td>大明湖站</td><td>历下区</td><td>大明湖路268号</td><td>24小时</td><td>30人</td><td><span class="tag tag-success">运营中</span></td><td><a href="#" style="color:var(--primary-light);">编辑</a></td></tr>
-            <tr><td>泉城路站</td><td>历下区</td><td>泉城路188号</td><td>08:00-22:00</td><td>50人</td><td><span class="tag tag-success">运营中</span></td><td><a href="#" style="color:var(--primary-light);">编辑</a></td></tr>
-            <tr><td>趵突泉站</td><td>历下区</td><td>趵突泉南路6号</td><td>06:00-23:00</td><td>40人</td><td><span class="tag tag-success">运营中</span></td><td><a href="#" style="color:var(--primary-light);">编辑</a></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <!-- 消息推送管理 -->
-      <div class="backend-page" data-apage="messages-admin">
-        <div class="page-header"><h3>🔔 消息推送管理</h3><button class="btn btn-primary">+ 新建推送</button></div>
-        <table class="data-table">
-          <thead><tr><th>推送标题</th><th>推送渠道</th><th>目标用户</th><th>推送时间</th><th>送达量</th><th>状态</th><th>操作</th></tr></thead>
-          <tbody>
-            <tr><td>高温天气关怀提醒</td><td><span class="tag tag-info">小程序+企微</span></td><td>全部外卖骑手</td><td>07-02 08:00</td><td>1,280</td><td><span class="tag tag-success">已送达</span></td><td><a href="#" style="color:var(--primary-light);">查看</a></td></tr>
-            <tr><td>泉新公寓新房源通知</td><td><span class="tag tag-info">小程序</span></td><td>新就业群体</td><td>07-01 14:00</td><td>3,540</td><td><span class="tag tag-success">已送达</span></td><td><a href="#" style="color:var(--primary-light);">查看</a></td></tr>
-            <tr><td>技能培训报名提醒</td><td><span class="tag tag-info">小程序+企微</span></td><td>全部用户</td><td>07-03 10:00</td><td>-</td><td><span class="tag tag-warning">待发送</span></td><td><a href="#" style="color:var(--primary-light);">编辑</a></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    </aside>
   </div>
 </div>
 
@@ -2455,7 +2617,6 @@ document.querySelectorAll('#mainTabBar .tab-btn').forEach(btn => {
     btn.classList.add('active');
     document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
     document.getElementById(btn.dataset.tab).classList.add('active');
-    if (btn.dataset.tab === 'tab-admin') setTimeout(initCharts, 200);
   });
 });
 
@@ -2505,15 +2666,498 @@ function staffNav(page) {
   else stopSentimentRefresh();
 }
 
-// ===== TAB3: Admin sub-navigation =====
-function adminNav(page) {
-  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-  const sidebarItem = document.querySelector(`[data-apage="${page}"].sidebar-item`);
-  if (sidebarItem) sidebarItem.classList.add('active');
-  document.querySelectorAll('#adminMain .backend-page').forEach(p => p.classList.remove('active'));
-  const target = document.querySelector(`#adminMain [data-apage="${page}"]`);
-  if (target) target.classList.add('active');
-  if (page === 'dashboard') setTimeout(initCharts, 200);
+// ===== WorkBuddy 管理端交互 =====
+
+// Toast 提示
+function wbShowToast(msg, duration = 2200) {
+  let t = document.getElementById('wbToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'wbToast';
+    t.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:9999;background:#1e293b;color:#fff;font-size:13px;font-weight:600;padding:10px 22px;border-radius:100px;pointer-events:none;opacity:0;transition:opacity .25s ease;box-shadow:0 8px 30px rgba(0,0,0,.2);';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => { t.style.opacity = '0'; }, duration);
+}
+
+// 打开连接器面板
+function wbOpenConnector(connector) {
+  // 高亮当前连接器
+  document.querySelectorAll('.wb-connector-item').forEach(i => i.classList.remove('active'));
+  const ci = document.querySelector(`.wb-connector-item[data-connector="${connector}"]`);
+  if (ci) ci.classList.add('active');
+
+  // 切换到面板视图
+  const chatV = document.getElementById('wbChatView');
+  const panelV = document.getElementById('wbPanelView');
+  if (chatV) chatV.classList.remove('active');
+  if (panelV) panelV.classList.add('active');
+
+  // 设置标题和标签
+  const titleEl = document.getElementById('wbPanelTitle');
+  const tagEl = document.getElementById('wbPanelConnectorTag');
+  const bodyEl = document.getElementById('wbPanelBody');
+  if (!bodyEl) return;
+
+  const config = {
+    lexiang:   { title: '🧩 乐享知识库', tag: 'RAG 数据源 · 已连接', icon: '🧩' },
+    wecom:     { title: '💬 企业微信 · 群聊监测', tag: '7个群 · 实时监听', icon: '💬' },
+    dashboard: { title: '📊 数据运营看板', tag: '实时数据 · 已连接', icon: '📊' },
+    sentiment: { title: '📡 舆情监测中心', tag: '186群 · 实时预警', icon: '📡' },
+    'tencent-docs': { title: '📄 腾讯文档', tag: '文档协同 · 已连接', icon: '📄' },
+    tapid:     { title: '📋 TAPD 项目协同', tag: '任务看板 · 已连接', icon: '📋' },
+    settings:  { title: '⚙️ 连接器管理', tag: 'MCP 协议配置', icon: '⚙️' }
+  };
+
+  const c = config[connector] || { title: '连接器', tag: '', icon: '🔌' };
+  if (titleEl) titleEl.innerHTML = c.title;
+  if (tagEl) tagEl.textContent = c.tag;
+
+  bodyEl.innerHTML = renderConnectorContent(connector);
+  if (connector === 'dashboard') setTimeout(initCharts, 300);
+}
+
+// 打开技能面板
+function wbOpenSkill(skill) {
+  // 切换到面板视图
+  const chatV = document.getElementById('wbChatView');
+  const panelV = document.getElementById('wbPanelView');
+  if (chatV) chatV.classList.remove('active');
+  if (panelV) panelV.classList.add('active');
+
+  const titleEl = document.getElementById('wbPanelTitle');
+  const tagEl = document.getElementById('wbPanelConnectorTag');
+  const bodyEl = document.getElementById('wbPanelBody');
+  if (!bodyEl) return;
+
+  const config = {
+    dashboard:   { title: '📊 数据运营看板', tag: '技能 · 数据与监测', icon: '📊' },
+    sentiment:   { title: '📡 群聊舆情监测', tag: '技能 · 数据与监测', icon: '📡' },
+    appeals:     { title: '📝 诉求工单处理', tag: '技能 · 服务运营', icon: '📝' },
+    suggestions: { title: '💡 居民建议管理', tag: '技能 · 服务运营', icon: '💡' },
+    content:     { title: '📱 小程序内容管理', tag: '技能 · 服务运营', icon: '📱' },
+    messages:    { title: '🔔 消息推送管理', tag: '技能 · 服务运营', icon: '🔔' },
+    knowledge:   { title: '📚 知识库管理', tag: '技能 · 平台管理', icon: '📚' },
+    stations:    { title: '🏠 泉心驿站管理', tag: '技能 · 平台管理', icon: '🏠' },
+    users:       { title: '👥 用户权限管理', tag: '技能 · 平台管理', icon: '👥' },
+    config:      { title: '⚙️ 系统配置', tag: '技能 · 平台管理', icon: '⚙️' }
+  };
+
+  const c = config[skill] || { title: '技能面板', tag: '', icon: '🔧' };
+  if (titleEl) titleEl.innerHTML = c.title;
+  if (tagEl) tagEl.textContent = c.tag;
+
+  bodyEl.innerHTML = renderSkillContent(skill);
+  if (skill === 'dashboard') setTimeout(initCharts, 300);
+}
+
+// 返回对话视图
+function wbBackToChat() {
+  const chatV = document.getElementById('wbChatView');
+  const panelV = document.getElementById('wbPanelView');
+  if (chatV) chatV.classList.add('active');
+  if (panelV) panelV.classList.remove('active');
+  // 取消连接器高亮
+  document.querySelectorAll('.wb-connector-item').forEach(i => i.classList.remove('active'));
+}
+
+// 快速提问
+function wbQuickAsk(question) {
+  const input = document.getElementById('wbChatInput');
+  if (!input) return;
+  input.value = question;
+  wbSendMsg();
+}
+
+// 发送消息
+function wbSendMsg() {
+  const input = document.getElementById('wbChatInput');
+  if (!input || !input.value.trim()) return;
+  const msg = input.value.trim();
+  input.value = '';
+
+  const body = document.getElementById('wbChatBody');
+  if (!body) return;
+
+  // 隐藏欢迎区
+  const welcome = document.getElementById('wbWelcome');
+  if (welcome) welcome.style.display = 'none';
+
+  // 添加用户消息
+  body.insertAdjacentHTML('beforeend', `
+    <div class="wb-msg user">
+      <div class="wb-msg-avatar user-av">👤</div>
+      <div>
+        <div class="wb-msg-bubble">${escapeHtml(msg)}</div>
+        <div class="wb-msg-meta">王建国 · 刚刚</div>
+      </div>
+    </div>
+  `);
+
+  // 滚动到底部
+  body.scrollTop = body.scrollHeight;
+
+  // 模拟 AI 思考
+  const thinkingEl = document.createElement('div');
+  thinkingEl.className = 'wb-msg ai';
+  thinkingEl.innerHTML = `
+    <div class="wb-msg-avatar ai-av">🧩</div>
+    <div>
+      <div class="wb-msg-bubble" style="color:#94a3b8;">思考中<span class="wb-dots">...</span></div>
+    </div>
+  `;
+  body.appendChild(thinkingEl);
+  body.scrollTop = body.scrollHeight;
+
+  // 模拟动画
+  let dots = 0;
+  const dotTimer = setInterval(() => {
+    dots = (dots + 1) % 4;
+    const dotEl = thinkingEl.querySelector('.wb-dots');
+    if (dotEl) dotEl.textContent = '.'.repeat(dots);
+  }, 400);
+
+  setTimeout(() => {
+    clearInterval(dotTimer);
+    thinkingEl.remove();
+    
+    // 生成 AI 回复
+    const reply = generateAiReply(msg);
+    body.insertAdjacentHTML('beforeend', `
+      <div class="wb-msg ai">
+        <div class="wb-msg-avatar ai-av">🧩</div>
+        <div>
+          <div class="wb-msg-bubble">${reply}</div>
+          <div class="wb-msg-meta">🧩 WorkBuddy · 刚刚</div>
+        </div>
+      </div>
+    `);
+    body.scrollTop = body.scrollHeight;
+  }, 1200 + Math.random() * 800);
+}
+
+// AI 智能回复生成
+function generateAiReply(msg) {
+  const lower = msg.toLowerCase();
+  
+  // 诉求/工单相关
+  if (lower.includes('诉求') || lower.includes('工单') || lower.includes('办结')) {
+    const connector = lower.includes('群') || lower.includes('企微') ? '💬 企业微信连接器' : '📊 数据看板连接器';
+    return `好的，正在通过 <b>${connector}</b> 查询……<br><br>
+<div class="wb-chat-stats">
+  <div class="wb-chat-stat"><div class="cs-val">1,286</div><div class="cs-label">诉求总量</div><div class="cs-trend up">↑ 12.5%</div></div>
+  <div class="wb-chat-stat"><div class="cs-val">92.4%</div><div class="cs-label">办结率</div><div class="cs-trend up">↑ 2.1%</div></div>
+  <div class="wb-chat-stat"><div class="cs-val">86</div><div class="cs-label">待处理</div><div class="cs-trend down" style="color:#10b981;">↓ 8件</div></div>
+</div>
+本月 AI 自动成单占比已达 <b>68%</b>，建议关注劳务纠纷类诉求的增长趋势。
+<div style="margin-top:10px;"><span style="display:inline-block;padding:6px 14px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;" onclick="wbOpenSkill('appeals')">📝 处理待办工单 →</span></div>`;
+  }
+
+  // 舆情/群聊相关
+  if (lower.includes('舆情') || lower.includes('群') || lower.includes('监测') || lower.includes('异常')) {
+    return `正在巡查 <b>186 个监测群</b>……<br><br>
+<div class="wb-chat-alert" style="margin-bottom:8px;">
+  <div class="cal-t">🔴 严重预警 · 外卖骑手群(3个)</div>
+  <div class="cal-d">关键词"派单距离·超时扣款"扩散速度 ↑320%<br>→ 工单 <b>GD-2026-0715</b> 已自动生成并派发</div>
+</div>
+<div class="wb-chat-alert" style="background:linear-gradient(135deg,#fffbeb,#fffdf5);border-color:#fcd34d;border-left-color:#f59e0b;">
+  <div class="cal-t" style="color:#d97706;">🟠 关注提醒 · 网约车司机群(2个)</div>
+  <div class="cal-d">"充电桩不足"持续讨论，建议关注</div>
+</div>
+其余 184 个群聊状态正常 ✅
+<div style="margin-top:10px;"><span style="display:inline-block;padding:6px 14px;background:#fef2f2;color:#dc2626;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;margin-right:6px;" onclick="wbOpenConnector('sentiment')">🔴 查看舆情详情 →</span></div>`;
+  }
+
+  // 知识库/政策相关
+  if (lower.includes('知识') || lower.includes('政策') || lower.includes('更新') || lower.includes('补贴')) {
+    return `已通过 <b>🧩 乐享知识库连接器</b> 检索相关政策……<br><br>
+✅ <b>已找到以下政策条目：</b><br>
+<span style="font-size:11px;color:#64748b;">
+· 济南市2026年高温补贴发放标准（市人社局 · 06-15更新）<br>
+· 外卖骑手/快递员高温作业防护指引（市总工会 · 05-20）<br>
+· 新就业形态劳动者权益保障实施办法（市政府 · 03-01）<br>
+</span><br>
+知识库 RAG 问答准确率：<b>99.2%</b>，居民可直接在微信小程序中获取这些政策解答。
+<div style="margin-top:10px;"><span style="display:inline-block;padding:6px 14px;background:#eff6ff;color:#2563eb;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;" onclick="wbOpenSkill('knowledge')">📚 管理知识库 →</span></div>`;
+  }
+
+  // 数据/看板相关
+  if (lower.includes('数据') || lower.includes('看板') || lower.includes('统计') || lower.includes('报表')) {
+    return `正在通过 <b>📊 数据看板连接器</b> 生成实时数据……<br><br>
+<div class="wb-chat-stats">
+  <div class="wb-chat-stat"><div class="cs-val">1,286</div><div class="cs-label">诉求总量</div><div class="cs-trend up">↑ 12.5%</div></div>
+  <div class="wb-chat-stat"><div class="cs-val">3,720</div><div class="cs-label">AI问答</div><div class="cs-trend up">↑ 15.7%</div></div>
+  <div class="wb-chat-stat"><div class="cs-val">458</div><div class="cs-label">居民建议</div><div class="cs-trend up">↑ 8.3%</div></div>
+</div>
+各项指标运行正常，建议关注劳务纠纷类诉求的增长趋势（本月环比 +18%）。
+<div style="margin-top:10px;"><span style="display:inline-block;padding:6px 14px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;" onclick="wbOpenConnector('dashboard')">📊 打开完整数据看板 →</span></div>`;
+  }
+
+  // 月报/报告相关
+  if (lower.includes('月报') || lower.includes('报告') || lower.includes('生成') || lower.includes('总结')) {
+    return `正在为您生成 <b>2026年6月社区治理月报</b>……<br><br>
+📄 <b>月报预览：</b><br>
+<span style="font-size:11px;color:#64748b;">
+1. 诉求概况：本月受理 286 件，办结率 92.4%，平均处理时效 3.5 天<br>
+2. 舆情监测：监测 186 个群聊，预警 11 次，均及时处置<br>
+3. 居民服务：AI 问答 3,720 次，满意度 92.8%<br>
+4. 知识库：新增 23 条政策，问答准确率提升至 99.2%<br>
+</span><br>
+已生成完整月报文档，通过 <b>📄 腾讯文档连接器</b> 保存至团队空间。
+<div style="margin-top:10px;"><span style="display:inline-block;padding:6px 14px;background:#eff6ff;color:#2563eb;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;" onclick="wbOpenConnector('tencent-docs')">📄 查看月报文档 →</span></div>`;
+  }
+
+  // 默认回复
+  const responses = [
+    `收到，让我通过已连接的 <b>7 个连接器</b> 为您查找相关信息……<br><br>您可以通过左侧连接器栏或右侧技能面板快速跳转到具体功能模块。也可以直接告诉我具体需求，我来帮您处理。`,
+    `好的，我来帮您处理。<br><br>💡 提示：您可以通过左侧 <b>连接器</b> 直接访问各系统数据，或使用右侧 <b>技能面板</b> 快速进入常用管理功能。`,
+    `正在分析您的需求……<br><br>目前我已接入 <b>7 个连接器</b>（乐享知识库、企业微信、数据看板、舆情监测、腾讯文档、TAPD等）和 <b>12 项社区治理技能</b>，随时为您服务。请问需要我具体做什么？`
+  ];
+  return responses[Math.floor(Math.random() * responses.length)];
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ===== 连接器面板内容渲染 =====
+function renderConnectorContent(connector) {
+  switch (connector) {
+    case 'lexiang':
+      return `<div style="max-width:900px;">
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-card"><div class="stat-icon blue">📚</div><div class="stat-info"><div class="stat-val">1,256</div><div class="stat-label">知识条目总数</div></div></div>
+          <div class="stat-card"><div class="stat-icon green">✅</div><div class="stat-info"><div class="stat-val">99.2%</div><div class="stat-label">RAG 问答准确率</div></div></div>
+          <div class="stat-card"><div class="stat-icon cyan">🔄</div><div class="stat-info"><div class="stat-val">23</div><div class="stat-label">本月新增</div></div></div>
+        </div>
+        <h4 style="margin:16px 0 12px;font-size:14px;">📁 知识分类</h4>
+        <table class="data-table"><thead><tr><th>知识标题</th><th>分类</th><th>创建时间</th><th>引用次数</th><th>状态</th></tr></thead><tbody>
+          <tr><td>济南市新就业形态劳动者权益保障实施办法</td><td><span class="tag tag-primary">政策法规</span></td><td>2026-06-15</td><td>128</td><td><span class="tag tag-success">已发布</span></td></tr>
+          <tr><td>外卖配送员公租房申请指南</td><td><span class="tag tag-info">办事指南</span></td><td>2026-06-20</td><td>256</td><td><span class="tag tag-success">已发布</span></td></tr>
+          <tr><td>网约车驾驶员从业资格证办理流程</td><td><span class="tag tag-info">办事指南</span></td><td>2026-06-22</td><td>89</td><td><span class="tag tag-success">已发布</span></td></tr>
+          <tr><td>高温补贴发放标准及申领方式（2026版）</td><td><span class="tag tag-primary">政策法规</span></td><td>2026-06-28</td><td>312</td><td><span class="tag tag-warning">审核中</span></td></tr>
+        </tbody></table>
+        <div style="margin-top:14px;padding:12px 16px;background:#eff6ff;border-radius:12px;font-size:12px;color:#2563eb;">
+          🧩 <b>连接方式：</b>通过 <b>乐享知识库 MCP 连接器</b> 接入，WorkBuddy 自动将知识条目向量化并注入 RAG 引擎，为 AI 问答提供实时政策支撑。
+        </div>
+      </div>`;
+
+    case 'wecom':
+      return `<div style="max-width:900px;">
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-card"><div class="stat-icon blue">💬</div><div class="stat-info"><div class="stat-val">186</div><div class="stat-label">监测群聊</div></div></div>
+          <div class="stat-card"><div class="stat-icon green">🤖</div><div class="stat-info"><div class="stat-val">68%</div><div class="stat-label">AI 自动成单率</div></div></div>
+          <div class="stat-card"><div class="stat-icon amber">⚡</div><div class="stat-info"><div class="stat-val">3.2s</div><div class="stat-label">平均识别响应</div></div></div>
+        </div>
+        <h4 style="margin:16px 0 12px;font-size:14px;">📡 实时监测群聊</h4>
+        <table class="data-table"><thead><tr><th>群聊名称</th><th>群成员</th><th>今日消息</th><th>识别诉求</th><th>状态</th></tr></thead><tbody>
+          <tr><td>外卖骑手·泉城驿站</td><td>328人</td><td>156条</td><td>2条</td><td><span class="tag tag-success">监测中</span></td></tr>
+          <tr><td>网约车司机·互助群</td><td>412人</td><td>203条</td><td>1条</td><td><span class="tag tag-success">监测中</span></td></tr>
+          <tr><td>直播从业者·交流群</td><td>186人</td><td>89条</td><td>0条</td><td><span class="tag tag-success">监测中</span></td></tr>
+          <tr><td>快递小哥·便民服务群</td><td>256人</td><td>132条</td><td>1条</td><td><span class="tag tag-success">监测中</span></td></tr>
+        </tbody></table>
+        <div style="margin-top:14px;padding:12px 16px;background:#eff6ff;border-radius:12px;font-size:12px;color:#2563eb;">
+          💬 <b>连接方式：</b>通过 <b>企业微信 MCP 连接器</b> 实时监听群聊消息，AI 自动识别诉求/建议意图 → 生成工单 → 推送到民呼我应平台。支持 @泉小新 智能问答。
+        </div>
+      </div>`;
+
+    case 'dashboard':
+      return `<div>
+        <div class="stats-row" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card appeals"><div class="stat-icon blue">📝</div><div class="stat-info"><div class="stat-val">1,286</div><div class="stat-trend up">↑ 12.5% 较上月</div><div class="stat-label">诉求总量</div></div></div>
+          <div class="stat-card rate"><div class="stat-icon green">✅</div><div class="stat-info"><div class="stat-val">92.4%</div><div class="stat-trend up">↑ 2.1% 较上月</div><div class="stat-label">办结率</div></div></div>
+          <div class="stat-card suggestions"><div class="stat-icon amber">💡</div><div class="stat-info"><div class="stat-val">458</div><div class="stat-trend up">↑ 8.3% 较上月</div><div class="stat-label">建议总量</div></div></div>
+          <div class="stat-card qa"><div class="stat-icon cyan">🤖</div><div class="stat-info"><div class="stat-val">3,720</div><div class="stat-trend up">↑ 15.7% 较上月</div><div class="stat-label">问答总量</div></div></div>
+        </div>
+        <div class="chart-row"><div class="chart-box"><h4>📈 诉求趋势（近6个月）</h4><div class="chart-inner" id="chart1"></div></div><div class="chart-box"><h4>🍩 诉求分类分布</h4><div class="chart-inner" id="chart2"></div></div></div>
+        <div class="chart-row equal"><div class="chart-box"><h4>⏱️ 平均处理时效趋势（天）</h4><div class="chart-inner sm" id="chart3"></div></div><div class="chart-box"><h4>⭐ 满意度评分分布</h4><div class="chart-inner sm" id="chart4"></div></div></div>
+      </div>`;
+
+    case 'sentiment':
+      return `<div style="max-width:900px;">
+        <div class="stats-row" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card"><div class="stat-icon blue" style="background:linear-gradient(135deg,#fef2f2,#fee2e2);color:#dc2626;">🔴</div><div class="stat-info"><div class="stat-val">3</div><div class="stat-label">严重预警</div></div></div>
+          <div class="stat-card"><div class="stat-icon amber">🟠</div><div class="stat-info"><div class="stat-val">8</div><div class="stat-label">警告关注</div></div></div>
+          <div class="stat-card"><div class="stat-icon green">🟢</div><div class="stat-info"><div class="stat-val">186</div><div class="stat-label">正常监测群</div></div></div>
+          <div class="stat-card"><div class="stat-icon cyan">🤖</div><div class="stat-info"><div class="stat-val">99.2%</div><div class="stat-label">AI识别准确率</div></div></div>
+        </div>
+        <table class="data-table"><thead><tr><th>预警等级</th><th>关键词</th><th>涉及群聊</th><th>触发时间</th><th>扩散速度</th><th>处置状态</th></tr></thead><tbody>
+          <tr><td><span class="tag tag-danger">严重</span></td><td>派单距离·超时扣款</td><td>外卖骑手群(3个)</td><td>07-02 09:15</td><td>↑320%</td><td><span class="tag tag-warning">处理中</span></td></tr>
+          <tr><td><span class="tag tag-warning">警告</span></td><td>充电桩不足</td><td>网约车司机群(2个)</td><td>07-01 16:40</td><td>↑120%</td><td><span class="tag tag-primary">已派单</span></td></tr>
+          <tr><td><span class="tag tag-warning">警告</span></td><td>高温补贴发放</td><td>外卖骑手群(1个)</td><td>06-30 14:55</td><td>↑85%</td><td><span class="tag tag-success">已处置</span></td></tr>
+        </tbody></table>
+        <div style="margin-top:14px;padding:12px 16px;background:#fef2f2;border-radius:12px;font-size:12px;color:#dc2626;">
+          📡 <b>连接方式：</b>通过 <b>舆情监测连接器</b>（基于企业微信 MCP）实时分析群聊语义，自动识别负面情绪、高频关键词和扩散趋势，触发分级预警。数据每分钟刷新。
+        </div>
+      </div>`;
+
+    case 'tencent-docs':
+      return `<div style="max-width:900px;">
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-card"><div class="stat-icon blue">📄</div><div class="stat-info"><div class="stat-val">156</div><div class="stat-label">文档总数</div></div></div>
+          <div class="stat-card"><div class="stat-icon green">📁</div><div class="stat-info"><div class="stat-val">12</div><div class="stat-label">协作文件夹</div></div></div>
+          <div class="stat-card"><div class="stat-icon cyan">👥</div><div class="stat-info"><div class="stat-val">8</div><div class="stat-label">协作成员</div></div></div>
+        </div>
+        <table class="data-table"><thead><tr><th>文档名称</th><th>类型</th><th>最后编辑</th><th>编辑者</th></tr></thead><tbody>
+          <tr><td>泉小新·6月社区治理月报</td><td>📝 文档</td><td>07-02 10:30</td><td>王建国</td></tr>
+          <tr><td>新就业群体服务需求调研报告</td><td>📊 表格</td><td>06-28 16:20</td><td>李明华</td></tr>
+          <tr><td>泉新公寓入住申请统计</td><td>📊 表格</td><td>06-25 14:10</td><td>张小红</td></tr>
+          <tr><td>高温补贴政策解读 PPT</td><td>📽️ 幻灯片</td><td>06-20 09:45</td><td>赵德民</td></tr>
+        </tbody></table>
+        <div style="margin-top:14px;padding:12px 16px;background:#eff6ff;border-radius:12px;font-size:12px;color:#2563eb;">
+          📄 <b>连接方式：</b>通过 <b>腾讯文档 MCP 连接器</b> 接入团队文档空间，WorkBuddy 可直接读取、编辑和生成文档，支持 AI 辅助撰写月报/调研报告。
+        </div>
+      </div>`;
+
+    case 'tapid':
+      return `<div style="max-width:900px;">
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-card"><div class="stat-icon blue">📋</div><div class="stat-info"><div class="stat-val">42</div><div class="stat-label">进行中任务</div></div></div>
+          <div class="stat-card"><div class="stat-icon green">✅</div><div class="stat-info"><div class="stat-val">128</div><div class="stat-label">已完成</div></div></div>
+          <div class="stat-card"><div class="stat-icon amber">⏳</div><div class="stat-info"><div class="stat-val">6</div><div class="stat-label">逾期任务</div></div></div>
+        </div>
+        <table class="data-table"><thead><tr><th>任务名称</th><th>负责人</th><th>优先级</th><th>截止日期</th><th>状态</th></tr></thead><tbody>
+          <tr><td>泉新公寓新房源上线</td><td>王建国</td><td><span class="tag tag-danger">高</span></td><td>07-15</td><td><span class="tag tag-warning">进行中</span></td></tr>
+          <tr><td>高温补贴政策更新</td><td>李明华</td><td><span class="tag tag-warning">中</span></td><td>07-10</td><td><span class="tag tag-primary">审核中</span></td></tr>
+          <tr><td>换电柜选址调研</td><td>张小红</td><td><span class="tag tag-info">低</span></td><td>07-20</td><td><span class="tag tag-success">已完成</span></td></tr>
+        </tbody></table>
+        <div style="margin-top:14px;padding:12px 16px;background:#eff6ff;border-radius:12px;font-size:12px;color:#2563eb;">
+          📋 <b>连接方式：</b>通过 <b>TAPD MCP 连接器</b> 接入项目管理，工单自动同步为 TAPD 任务，支持跨部门协同处理。
+        </div>
+      </div>`;
+
+    case 'settings':
+      return `<div style="max-width:900px;">
+        <h4 style="margin-bottom:16px;">🔌 MCP 连接器配置</h4>
+        <table class="data-table"><thead><tr><th>连接器</th><th>协议</th><th>状态</th><th>最后同步</th><th>操作</th></tr></thead><tbody>
+          <tr><td>🧩 乐享知识库</td><td>MCP</td><td><span class="tag tag-success">已连接</span></td><td>07-02 09:30</td><td><a href="#" style="color:#2563eb;">配置</a> <a href="#" style="color:#ef4444;">断开</a></td></tr>
+          <tr><td>💬 企业微信</td><td>MCP</td><td><span class="tag tag-success">已连接</span></td><td>实时</td><td><a href="#" style="color:#2563eb;">配置</a></td></tr>
+          <tr><td>📊 数据看板</td><td>API</td><td><span class="tag tag-success">已连接</span></td><td>实时</td><td><a href="#" style="color:#2563eb;">配置</a></td></tr>
+          <tr><td>📡 舆情监测</td><td>MCP</td><td><span class="tag tag-success">已连接</span></td><td>实时</td><td><a href="#" style="color:#2563eb;">配置</a></td></tr>
+          <tr><td>📄 腾讯文档</td><td>MCP</td><td><span class="tag tag-success">已连接</span></td><td>07-02 08:00</td><td><a href="#" style="color:#2563eb;">配置</a></td></tr>
+          <tr><td>📋 TAPD</td><td>MCP</td><td><span class="tag tag-success">已连接</span></td><td>实时</td><td><a href="#" style="color:#2563eb;">配置</a></td></tr>
+          <tr><td>🔗 可用连接器</td><td>—</td><td><span class="tag" style="background:#f1f5f9;">未连接</span></td><td>—</td><td><a href="#" style="color:#10b981;">+ 添加</a></td></tr>
+        </tbody></table>
+        <div style="margin-top:14px;padding:12px 16px;background:#f8fafc;border-radius:12px;font-size:11px;color:#64748b;">
+          MCP（Model Context Protocol）是 AI 的 USB 接口标准。WorkBuddy 通过 MCP 协议连接外部数据源和工具，支持 30+ 行业工具接入。连接器读写不耗积分，AI 对数据做理解/汇总才计费。
+        </div>
+      </div>`;
+
+    default:
+      return '<div style="text-align:center;padding:60px;color:#94a3b8;">连接器加载中……</div>';
+  }
+}
+
+// ===== 技能面板内容渲染 =====
+function renderSkillContent(skill) {
+  switch (skill) {
+    case 'dashboard':
+      return renderConnectorContent('dashboard');
+
+    case 'sentiment':
+      return renderConnectorContent('sentiment');
+
+    case 'appeals':
+      return `<div style="max-width:100%;">
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <span class="tag tag-primary" style="cursor:pointer;">全部(1286)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">待分配(86)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">处理中(210)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">已办结(990)</span>
+        </div>
+        <table class="data-table"><thead><tr><th>工单编号</th><th>诉求分类</th><th>诉求人</th><th>提交时间</th><th>处理人</th><th>状态</th><th>操作</th></tr></thead><tbody>
+          <tr><td>GD-2026-0715</td><td>劳务纠纷</td><td>李师傅</td><td>07-02 09:15</td><td>待分配</td><td><span class="tag tag-danger">待分配</span></td><td><a href="#" style="color:#2563eb;">分配</a></td></tr>
+          <tr><td>GD-2026-0712</td><td>社会保障</td><td>赵师傅</td><td>07-01 15:20</td><td>王建国</td><td><span class="tag tag-warning">处理中</span></td><td><a href="#" style="color:#2563eb;">跟进</a></td></tr>
+          <tr><td>GD-2026-0695</td><td>权益保障</td><td>孙女士</td><td>06-30 11:00</td><td>李明华</td><td><span class="tag tag-success">已办结</span></td><td><a href="#" style="color:#2563eb;">查看</a></td></tr>
+          <tr><td>GD-2026-0688</td><td>住房问题</td><td>刘师傅</td><td>06-28 16:45</td><td>张小红</td><td><span class="tag tag-success">已办结</span></td><td><a href="#" style="color:#2563eb;">查看</a></td></tr>
+        </tbody></table>
+      </div>`;
+
+    case 'suggestions':
+      return `<div style="max-width:100%;">
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <span class="tag tag-primary" style="cursor:pointer;">全部(458)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">待审核(32)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">已采纳(286)</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">已回复(140)</span>
+        </div>
+        <table class="data-table"><thead><tr><th>建议标题</th><th>类型</th><th>提交人</th><th>提交时间</th><th>采纳状态</th><th>操作</th></tr></thead><tbody>
+          <tr><td>泉城路增设换电柜建议</td><td>设施建设</td><td>张师傅</td><td>07-01</td><td><span class="tag tag-success">已采纳</span></td><td><a href="#" style="color:#2563eb;">查看</a></td></tr>
+          <tr><td>增加夜间服务窗口建议</td><td>服务改进</td><td>王师傅</td><td>06-29</td><td><span class="tag tag-warning">待审核</span></td><td><a href="#" style="color:#2563eb;">审核</a></td></tr>
+          <tr><td>增加法律咨询服务时间</td><td>政策建议</td><td>赵女士</td><td>06-28</td><td><span class="tag tag-success">已采纳</span></td><td><a href="#" style="color:#2563eb;">查看</a></td></tr>
+        </tbody></table>
+      </div>`;
+
+    case 'content':
+      return `<div style="max-width:100%;">
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <span class="tag tag-primary" style="cursor:pointer;">全部</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">Banner</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">服务入口</span><span class="tag" style="cursor:pointer;background:#f1f5f9;">资讯动态</span>
+        </div>
+        <table class="data-table"><thead><tr><th>内容标题</th><th>类型</th><th>所属模块</th><th>状态</th><th>更新时间</th></tr></thead><tbody>
+          <tr><td>泉心服务 · 暖心同行</td><td><span class="tag tag-warning">Banner</span></td><td>首页轮播</td><td><span class="tag tag-success">已发布</span></td><td>07-02</td></tr>
+          <tr><td>泉新公寓 · 温暖入住</td><td><span class="tag tag-warning">Banner</span></td><td>首页轮播</td><td><span class="tag tag-success">已发布</span></td><td>07-01</td></tr>
+          <tr><td>泉新公寓入住申请指南</td><td><span class="tag tag-info">服务详情</span></td><td>泉新公寓</td><td><span class="tag tag-success">已发布</span></td><td>06-28</td></tr>
+        </tbody></table>
+      </div>`;
+
+    case 'messages':
+      return `<div style="max-width:100%;">
+        <table class="data-table"><thead><tr><th>推送标题</th><th>推送渠道</th><th>目标用户</th><th>推送时间</th><th>送达量</th><th>状态</th></tr></thead><tbody>
+          <tr><td>高温天气关怀提醒</td><td><span class="tag tag-info">小程序+企微</span></td><td>全部外卖骑手</td><td>07-02 08:00</td><td>1,280</td><td><span class="tag tag-success">已送达</span></td></tr>
+          <tr><td>泉新公寓新房源通知</td><td><span class="tag tag-info">小程序</span></td><td>新就业群体</td><td>07-01 14:00</td><td>3,540</td><td><span class="tag tag-success">已送达</span></td></tr>
+          <tr><td>技能培训报名提醒</td><td><span class="tag tag-info">小程序+企微</span></td><td>全部用户</td><td>07-03 10:00</td><td>-</td><td><span class="tag tag-warning">待发送</span></td></tr>
+        </tbody></table>
+      </div>`;
+
+    case 'knowledge':
+      return renderConnectorContent('lexiang');
+
+    case 'stations':
+      return `<div style="max-width:100%;">
+        <div class="stats-row" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card"><div class="stat-icon blue">🏠</div><div class="stat-info"><div class="stat-val">32</div><div class="stat-label">驿站总数</div></div></div>
+          <div class="stat-card"><div class="stat-icon green">✅</div><div class="stat-info"><div class="stat-val">28</div><div class="stat-label">运营中</div></div></div>
+          <div class="stat-card"><div class="stat-icon amber">👥</div><div class="stat-info"><div class="stat-val">1,250</div><div class="stat-label">月均服务人次</div></div></div>
+          <div class="stat-card"><div class="stat-icon cyan">⭐</div><div class="stat-info"><div class="stat-val">4.8</div><div class="stat-label">平均评分</div></div></div>
+        </div>
+        <table class="data-table"><thead><tr><th>驿站名称</th><th>所属区域</th><th>地址</th><th>开放时间</th><th>容纳人数</th><th>状态</th></tr></thead><tbody>
+          <tr><td>大明湖站</td><td>历下区</td><td>大明湖路268号</td><td>24小时</td><td>30人</td><td><span class="tag tag-success">运营中</span></td></tr>
+          <tr><td>泉城路站</td><td>历下区</td><td>泉城路188号</td><td>08:00-22:00</td><td>50人</td><td><span class="tag tag-success">运营中</span></td></tr>
+          <tr><td>趵突泉站</td><td>历下区</td><td>趵突泉南路6号</td><td>06:00-23:00</td><td>40人</td><td><span class="tag tag-success">运营中</span></td></tr>
+        </tbody></table>
+      </div>`;
+
+    case 'users':
+      return `<div style="max-width:100%;">
+        <table class="data-table"><thead><tr><th>姓名</th><th>角色</th><th>所属组织</th><th>状态</th><th>最后登录</th></tr></thead><tbody>
+          <tr><td>王建国</td><td><span class="tag tag-primary">街道管理员</span></td><td>大明湖街道</td><td><span class="tag tag-success">正常</span></td><td>07-02 09:15</td></tr>
+          <tr><td>李明华</td><td><span class="tag tag-info">社区工作者</span></td><td>大明湖街道·第3网格</td><td><span class="tag tag-success">正常</span></td><td>07-01 16:40</td></tr>
+          <tr><td>张小红</td><td><span class="tag tag-info">社区工作者</span></td><td>泉城路街道</td><td><span class="tag tag-success">正常</span></td><td>07-02 08:30</td></tr>
+          <tr><td>赵德民</td><td><span class="tag tag-warning">区级管理员</span></td><td>历下区委社工部</td><td><span class="tag tag-success">正常</span></td><td>07-01 14:20</td></tr>
+        </tbody></table>
+      </div>`;
+
+    case 'config':
+      return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:900px;">
+        <div class="card"><h4 style="margin-bottom:12px;">📱 小程序服务入口配置</h4>
+          <table class="data-table"><thead><tr><th>服务名称</th><th>图标</th><th>状态</th><th>排序</th></tr></thead><tbody>
+            <tr><td>提建议</td><td>💡</td><td><span class="tag tag-success">显示</span></td><td>1</td></tr>
+            <tr><td>报诉求</td><td>📝</td><td><span class="tag tag-success">显示</span></td><td>2</td></tr>
+            <tr><td>智能问答</td><td>🤖</td><td><span class="tag tag-success">显示</span></td><td>3</td></tr>
+            <tr><td>泉城星光</td><td>⭐</td><td><span class="tag tag-success">显示</span></td><td>4</td></tr>
+          </tbody></table>
+        </div>
+        <div class="card"><h4 style="margin-bottom:12px;">💬 欢迎词与消息模板</h4>
+          <div style="margin-bottom:10px;"><label style="font-size:11px;color:#64748b;">新入群欢迎词</label>
+            <textarea style="width:100%;height:60px;border:1px solid #e2e8f0;border-radius:8px;padding:8px;font-size:12px;resize:none;">欢迎加入泉小新服务群！🎉 我是您的智能助手……</textarea></div>
+          <div style="margin-bottom:10px;"><label style="font-size:11px;color:#64748b;">工单推送模板</label>
+            <textarea style="width:100%;height:50px;border:1px solid #e2e8f0;border-radius:8px;padding:8px;font-size:12px;resize:none;">【新工单】编号{工单号}：{诉求摘要}，请及时处理。</textarea></div>
+          <button class="btn btn-primary" onclick="wbShowToast('✅ 配置已保存')" style="margin-top:6px;">保存配置</button>
+        </div>
+      </div>`;
+
+    default:
+      return '<div style="text-align:center;padding:60px;color:#94a3b8;">技能加载中……</div>';
+  }
 }
 
 // ===== TAB4: WeWork navigation =====
@@ -2608,8 +3252,7 @@ function initCharts() {
   window.addEventListener('resize', () => { c1?.resize(); c2?.resize(); c3?.resize(); c4?.resize(); });
 }
 
-setTimeout(() => { if (document.getElementById('tab-admin').classList.contains('active')) initCharts(); }, 400);
-document.querySelector('[data-tab="tab-admin"]')?.addEventListener('click', () => setTimeout(initCharts, 250));
+// Charts auto-init when dashboard connector/skill opens in panel view (see wbOpenConnector/wbOpenSkill)
 
 // ===== 泉小新人物挥手交互 =====
 function qxxWaveHello() {
