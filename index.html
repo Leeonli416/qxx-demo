@@ -1330,9 +1330,9 @@ body::before {
                 <textarea class="ai-big-input" placeholder="直接说出您想做什么，我帮您自动办理..." rows="1"></textarea>
                 <div class="ai-input-tools">
                   <div class="ai-tool-left">
-                    <button class="ai-tool-btn">🎤</button>
-                    <button class="ai-tool-btn">📎</button>
-                    <button class="ai-tool-btn">📷</button>
+                    <button class="voice-hold-btn" id="voiceBtn-citizen" data-type="citizen" data-mode="dialog">
+                      <span class="voice-icon">🎤</span>按住说话
+                    </button>
                   </div>
                   <button class="ai-send-btn" onclick="handleAISend('citizen')">↑ 发送</button>
                 </div>
@@ -1558,7 +1558,10 @@ body::before {
           </div>
           <div class="chat-input-bar">
             <input type="text" placeholder="输入您的问题...">
-            <button class="btn btn-primary btn-sm">发送</button>
+            <button class="btn btn-primary btn-sm" onclick="this.closest('.chat-input-bar').querySelector('input').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter'}))">发送</button>
+            <button class="voice-hold-btn" id="voiceBtn-qacitizen" data-type="qa-citizen" data-mode="chat" style="padding:6px 14px;font-size:12px;margin-left:6px;">
+              <span class="voice-icon">🎤</span>按住说话
+            </button>
           </div>
         </div>
         <!-- 消息中心 -->
@@ -1693,8 +1696,9 @@ body::before {
                 <textarea class="ai-big-input" placeholder="直接说出您的工作需求，AI帮您自动处理..." rows="1"></textarea>
                 <div class="ai-input-tools">
                   <div class="ai-tool-left">
-                    <button class="ai-tool-btn">🎤</button>
-                    <button class="ai-tool-btn">📎</button>
+                    <button class="voice-hold-btn" id="voiceBtn-staff" data-type="staff" data-mode="dialog">
+                      <span class="voice-icon">🎤</span>按住说话
+                    </button>
                   </div>
                   <button class="ai-send-btn" onclick="handleAISend('staff')">↑ 发送</button>
                 </div>
@@ -2595,6 +2599,10 @@ function handleAISend(type) {
         body.appendChild(convBlock);
       }
       convBlock.scrollIntoView({ behavior: 'smooth' });
+      // 添加撤回按钮
+      const userMsg = convBlock.querySelector('.ai-conv-user');
+      const aiMsg = convBlock.querySelector('.ai-conv-ai');
+      if (userMsg) addWithdrawButton(userMsg, aiMsg, type);
     }
   }, 1500 + Math.random() * 800);
 }
@@ -2881,19 +2889,28 @@ function bindQAChat() {
     chatList.appendChild(thinkingMsg);
     chatList.scrollTop = chatList.scrollHeight;
 
+    let aiMsg = null;
     setTimeout(() => {
       thinkingMsg.remove();
-      const aiMsg = document.createElement('div');
+      aiMsg = document.createElement('div');
       aiMsg.className = 'chat-msg ai';
       const reply = generateSmartReply('citizen', text);
       aiMsg.innerHTML = '<div class="chat-avatar ai-av qxx-face"><img src="assets/avatar.png" alt="泉小新"></div><div><div class="chat-bubble">' + reply + '</div><div class="chat-source">📚 来源：济南市政策知识库 · 智能问答引擎</div></div>';
       chatList.appendChild(aiMsg);
       chatList.scrollTop = chatList.scrollHeight;
+      // 添加撤回按钮
+      addWithdrawButton(userMsg, aiMsg, 'qa');
     }, 1200 + Math.random() * 600);
   }
 
   sendBtn.addEventListener('click', sendQA);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendQA(); } });
+
+  // 绑定语音按钮
+  const voiceBtn = pageEl.querySelector('.voice-hold-btn');
+  if (voiceBtn && !voiceBtn.dataset.voiceBound) {
+    bindVoiceButton(voiceBtn, input, sendQA);
+  }
 }
 
 function bindMsgExpand() {
@@ -3150,11 +3167,14 @@ function bindAssistChat() {
   // Add input bar to the assist page
   const inputBar = document.createElement('div');
   inputBar.className = 'chat-input-bar';
-  inputBar.innerHTML = '<input type="text" placeholder="输入您的工作需求..."><button class="btn btn-primary btn-sm">发送</button>';
+  inputBar.innerHTML = '<input type="text" placeholder="输入您的工作需求..."><button class="btn btn-primary btn-sm">发送</button><button class="voice-hold-btn" data-type="assist-staff" data-mode="chat" style="padding:6px 14px;font-size:12px;margin-left:6px;"><span class="voice-icon">🎤</span>按住说话</button>';
   pageEl.appendChild(inputBar);
 
   const input = inputBar.querySelector('input');
   const sendBtn = inputBar.querySelector('button');
+  // Bind voice to the new button
+  const voiceBtn = inputBar.querySelector('.voice-hold-btn');
+  if (voiceBtn) bindVoiceButton(voiceBtn, input, sendAssist);
 
   function sendAssist() {
     const text = input.value.trim();
@@ -3171,14 +3191,16 @@ function bindAssistChat() {
     chatList.appendChild(thinkingMsg);
     chatList.scrollTop = chatList.scrollHeight;
 
+    let aiMsg = null;
     setTimeout(() => {
       thinkingMsg.remove();
-      const aiMsg = document.createElement('div');
+      aiMsg = document.createElement('div');
       aiMsg.className = 'chat-msg ai';
       const reply = generateSmartReply('staff', text);
       aiMsg.innerHTML = '<div class="chat-avatar ai-av">AI</div><div><div class="chat-bubble">' + reply + '</div></div>';
       chatList.appendChild(aiMsg);
       chatList.scrollTop = chatList.scrollHeight;
+      addWithdrawButton(userMsg, aiMsg, 'assist');
     }, 1200 + Math.random() * 600);
   }
 
@@ -3830,6 +3852,227 @@ function qxxWaveHello() {
   clearTimeout(window._qxxWaveT);
   window._qxxWaveT = setTimeout(() => { img.src = 'assets/hero-wave.png'; }, 3200);
 }
+
+// ===== 语音输入系统 =====
+// 录音浮层
+function createRecordingOverlay() {
+  if (document.getElementById('voiceOverlay')) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'voiceOverlay';
+  overlay.className = 'voice-recording-overlay';
+  overlay.innerHTML = '<div class="voice-recording-card"><div class="voice-waves">' +
+    '<div class="voice-wave-bar"></div><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div>' +
+    '<div class="voice-wave-bar"></div><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div>' +
+    '<div class="voice-wave-bar"></div></div>' +
+    '<div class="voice-recording-text">🎙️ 正在聆听...</div>' +
+    '<div class="voice-recording-hint">松开按钮自动发送</div></div>';
+  document.body.appendChild(overlay);
+}
+
+function showRecordingOverlay() {
+  createRecordingOverlay();
+  document.getElementById('voiceOverlay').classList.add('show');
+}
+
+function hideRecordingOverlay() {
+  const ol = document.getElementById('voiceOverlay');
+  if (ol) ol.classList.remove('show');
+}
+
+// 语音识别（Web Speech API，降级为模拟识别）
+let recognition = null;
+function getRecognition() {
+  if (recognition) return recognition;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.lang = 'zh-CN';
+    recognition.interimResults = false;
+    recognition.continuous = false;
+    recognition.maxAlternatives = 1;
+  }
+  return recognition;
+}
+
+// 模拟识别结果（当浏览器不支持 SpeechRecognition 时使用）
+const voiceSimQueries = {
+  'citizen': ['外卖员高温补贴怎么申请', '我想反映平台派单距离太远', '泉新公寓还有空房吗', '我的诉求办理到哪一步了', '附近有哪些驿站可以休息'],
+  'staff': ['帮我查一下待办任务', '生成高温天气关怀提醒转发话术', '今天有什么舆情预警需要关注', '外卖员高温补贴最新政策是什么', '帮我看看本周诉求处理情况']
+};
+
+let voiceSimIndex = { 'citizen': 0, 'staff': 0, 'qa-citizen': 0, 'assist-staff': 0 };
+
+// 绑定语音按钮
+function bindVoiceButton(btn, targetInput, sendCallback) {
+  if (!btn || btn.dataset.voiceBound) return;
+  btn.dataset.voiceBound = '1';
+  const type = btn.dataset.type;
+
+  // mousedown / touchstart — 开始录音
+  btn.addEventListener('mousedown', startVoice);
+  btn.addEventListener('touchstart', startVoice, { passive: false });
+
+  // mouseup / touchend — 停止录音并发送
+  btn.addEventListener('mouseup', stopVoice);
+  btn.addEventListener('touchend', stopVoice);
+  btn.addEventListener('mouseleave', stopVoice);
+  btn.addEventListener('touchcancel', stopVoice);
+
+  function startVoice(e) {
+    e.preventDefault();
+    btn.classList.add('recording');
+    btn.querySelector('.voice-icon').textContent = '🔴';
+    btn.querySelector('.voice-icon').nextSibling.textContent = '松开发送';
+    showRecordingOverlay();
+    // 清除之前的结果
+    btn.dataset.voiceResult = '';
+
+    const rec = getRecognition();
+    if (rec) {
+      try {
+        rec.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          btn.dataset.voiceResult = transcript;
+          // Update overlay text
+          updateOverlayText(transcript);
+        };
+        rec.onerror = () => { /* fallback to sim */ };
+        rec.start();
+      } catch(e) { /* fallback to sim */ }
+    }
+  }
+
+  function stopVoice(e) {
+    if (!btn.classList.contains('recording')) return;
+    e.preventDefault();
+    btn.classList.remove('recording');
+    btn.querySelector('.voice-icon').textContent = '🎤';
+    btn.querySelector('.voice-icon').nextSibling.textContent = '按住说话';
+    hideRecordingOverlay();
+
+    const rec = getRecognition();
+    if (rec) {
+      try { rec.stop(); } catch(e) {}
+    }
+
+    // 获取识别结果
+    let result = btn.dataset.voiceResult;
+    if (!result) {
+      // 模拟识别：轮播预设语句
+      const simPool = voiceSimQueries[type] || voiceSimQueries['citizen'];
+      const idx = (voiceSimIndex[type] || 0) % simPool.length;
+      result = simPool[idx];
+      voiceSimIndex[type] = (idx + 1) % simPool.length;
+    }
+
+    if (result && targetInput && sendCallback) {
+      // 对 dialog 模式的 textarea 和 chat 模式的 input 都设置值
+      if (targetInput.tagName === 'TEXTAREA') {
+        targetInput.value = result;
+      } else {
+        targetInput.value = result;
+      }
+      // 短暂延迟后自动发送
+      setTimeout(() => sendCallback(), 300);
+    }
+    btn.dataset.voiceResult = '';
+  }
+}
+
+function updateOverlayText(text) {
+  const el = document.querySelector('#voiceOverlay .voice-recording-text');
+  if (el) el.textContent = '🎙️ 识别到：「' + text + '」';
+}
+
+// 初始化所有语音按钮
+function initAllVoiceButtons() {
+  // AI 对话框中的语音按钮
+  document.querySelectorAll('.voice-hold-btn[data-mode="dialog"]').forEach(btn => {
+    if (btn.dataset.voiceBound) return;
+    const type = btn.dataset.type;
+    const dlg = document.getElementById('aiDialog-' + type);
+    if (!dlg) return;
+    const textarea = dlg.querySelector('.ai-big-input');
+    bindVoiceButton(btn, textarea, () => handleAISend(type));
+  });
+
+  // 智能问答页的语音按钮
+  const qaVoiceBtn = document.getElementById('voiceBtn-qacitizen');
+  if (qaVoiceBtn) {
+    const chatBar = qaVoiceBtn.closest('.chat-input-bar');
+    if (chatBar) {
+      const input = chatBar.querySelector('input');
+      const sendBtn = qaVoiceBtn.previousElementSibling;
+      // We need the sendQA function, which is scoped inside bindQAChat
+      // Use a workaround: dispatch Enter key
+      bindVoiceButton(qaVoiceBtn, input, () => {
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      });
+    }
+  }
+}
+
+// 页面加载后初始化
+setTimeout(initAllVoiceButtons, 500);
+
+// ===== 消息撤回系统 =====
+const withdrawables = {}; // { msgId: { el, timeoutId, aiMsg } }
+
+function addWithdrawButton(userMsgEl, aiMsgEl, type) {
+  const msgId = 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  const bubble = userMsgEl.querySelector('.chat-bubble') || userMsgEl.querySelector('.ai-conv-bubble');
+  if (!bubble) return;
+
+  // 创建撤回按钮
+  const withdrawBtn = document.createElement('span');
+  withdrawBtn.className = 'withdraw-btn show';
+  withdrawBtn.textContent = '撤回';
+  withdrawBtn.addEventListener('click', () => withdrawMessage(msgId));
+  bubble.appendChild(withdrawBtn);
+
+  // 2分钟后自动隐藏
+  const timeoutId = setTimeout(() => {
+    if (withdrawBtn.parentNode) withdrawBtn.classList.remove('show');
+    delete withdrawables[msgId];
+  }, 120000);
+
+  withdrawables[msgId] = { el: userMsgEl, aiMsgEl, timeoutId, withdrawBtn };
+}
+
+function withdrawMessage(msgId) {
+  const entry = withdrawables[msgId];
+  if (!entry) return;
+
+  clearTimeout(entry.timeoutId);
+  const { el: userMsgEl, aiMsgEl, withdrawBtn } = entry;
+
+  // 标记用户消息为已撤回
+  if (userMsgEl.classList.contains('chat-msg')) {
+    userMsgEl.classList.add('withdrawn');
+    const bubble = userMsgEl.querySelector('.chat-bubble');
+    if (bubble) {
+      bubble.textContent = '你撤回了一条消息';
+      bubble.style.padding = '6px 12px';
+    }
+  } else if (userMsgEl.classList.contains('ai-conv-user')) {
+    userMsgEl.classList.add('withdrawn');
+    const bubble = userMsgEl.querySelector('.ai-conv-bubble');
+    if (bubble) {
+      bubble.textContent = '你撤回了一条消息';
+      bubble.style.padding = '6px 12px';
+    }
+  }
+
+  // 移除 AI 回复
+  if (aiMsgEl) {
+    aiMsgEl.style.transition = 'opacity .3s';
+    aiMsgEl.style.opacity = '0';
+    setTimeout(() => { if (aiMsgEl.parentNode) aiMsgEl.remove(); }, 300);
+  }
+
+  delete withdrawables[msgId];
+  showToast('✅ 消息已撤回');
+}
 </script>
 
 <style>
@@ -3880,6 +4123,72 @@ function qxxWaveHello() {
 
 /* 已操作状态 */
 .handled-badge { display:inline-flex; align-items:center; gap:4px; font-size:10px; padding:3px 10px; border-radius:100px; background:#ecfdf5; color:#059669; white-space:nowrap; }
+
+/* ===== 语音输入按钮 ===== */
+.voice-btn-wrap { position:relative; display:inline-flex; }
+.voice-hold-btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  padding:8px 18px; border:none; border-radius:100px;
+  background:linear-gradient(135deg,#f97316,#ea580c);
+  color:#fff; font-size:13px; font-weight:600; cursor:pointer;
+  transition:all .2s; user-select:none; -webkit-user-select:none;
+}
+.voice-hold-btn:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(249,115,22,.35); }
+.voice-hold-btn:active, .voice-hold-btn.recording {
+  background:linear-gradient(135deg,#dc2626,#b91c1c);
+  transform:scale(1.05); box-shadow:0 0 0 8px rgba(220,38,38,.2);
+  animation:voicePulse .8s infinite;
+}
+.voice-hold-btn .voice-icon { font-size:16px; }
+@keyframes voicePulse {
+  0%,100% { box-shadow:0 0 0 0 rgba(220,38,38,.4); }
+  50% { box-shadow:0 0 0 12px rgba(220,38,38,0); }
+}
+
+/* 录音提示浮层 */
+.voice-recording-overlay {
+  position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.55); flex-direction:column; gap:16px;
+}
+.voice-recording-overlay.show { display:flex; }
+.voice-recording-card {
+  background:#fff; border-radius:20px; padding:32px 40px; text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.3); min-width:200px;
+}
+.voice-waves { display:flex; align-items:flex-end; justify-content:center; gap:3px; height:48px; margin-bottom:12px; }
+.voice-wave-bar {
+  width:4px; border-radius:2px; background:linear-gradient(180deg,#f97316,#dc2626);
+  animation:waveAnim .6s ease-in-out infinite;
+}
+.voice-wave-bar:nth-child(1) { height:16px; animation-delay:0s; }
+.voice-wave-bar:nth-child(2) { height:32px; animation-delay:.1s; }
+.voice-wave-bar:nth-child(3) { height:24px; animation-delay:.2s; }
+.voice-wave-bar:nth-child(4) { height:40px; animation-delay:.15s; }
+.voice-wave-bar:nth-child(5) { height:20px; animation-delay:.25s; }
+.voice-wave-bar:nth-child(6) { height:36px; animation-delay:.05s; }
+.voice-wave-bar:nth-child(7) { height:28px; animation-delay:.2s; }
+@keyframes waveAnim {
+  0%,100% { transform:scaleY(0.4); opacity:.6; }
+  50% { transform:scaleY(1.2); opacity:1; }
+}
+.voice-recording-text { font-size:15px; font-weight:600; color:#1f2937; margin-bottom:4px; }
+.voice-recording-hint { font-size:12px; color:#9ca3af; }
+
+/* 撤回按钮 */
+.withdraw-btn {
+  display:none; font-size:10px; color:#9ca3af; cursor:pointer; margin-left:8px;
+  padding:2px 6px; border-radius:4px; white-space:nowrap; transition:all .15s;
+}
+.withdraw-btn.show { display:inline-block; }
+.withdraw-btn:hover { background:#fef2f2; color:#dc2626; }
+
+/* 已撤回消息 */
+.chat-msg.withdrawn .chat-bubble {
+  background:#f1f5f9 !important; color:#94a3b8 !important; font-style:italic;
+}
+.ai-conv-user.withdrawn .ai-conv-bubble {
+  background:#f1f5f9 !important; color:#94a3b8 !important; font-style:italic;
+}
 </style>
 
 </body>
