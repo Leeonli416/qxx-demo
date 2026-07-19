@@ -2568,22 +2568,127 @@ function handleAISend(type) {
   const input = dlg.querySelector('.ai-big-input');
   const thinking = dlg.querySelector('.ai-thinking');
   if (!input || !input.value.trim()) return;
+  const query = input.value.trim();
+  input.value = '';
   // Show thinking
   if (thinking) thinking.classList.add('show');
-  // Simulate AI processing
+
+  // Generate contextual AI reply
+  const aiReply = generateSmartReply(type, query);
+
   setTimeout(() => {
     if (thinking) thinking.classList.remove('show');
-    showToast('AI已收到您的需求，正在自动为您办理...');
-    setTimeout(() => closeAIDialog(type), 600);
-  }, 1800);
+    // Insert user + AI reply into dialog body
+    const body = dlg.querySelector('.ai-dialog-body');
+    if (body) {
+      const convBlock = document.createElement('div');
+      convBlock.className = 'ai-conv-block';
+      convBlock.innerHTML = '<div class="ai-conv-user"><div class="ai-conv-label">你</div><div class="ai-conv-bubble user">' + escapeHtml(query) + '</div></div><div class="ai-conv-ai"><div class="ai-conv-label">泉小新</div><div class="ai-conv-bubble ai">' + aiReply + '</div></div>';
+      const logoArea = body.querySelector('.ai-logo-area');
+      const suggestions = body.querySelector('.ai-suggestions');
+      if (suggestions) {
+        body.insertBefore(convBlock, suggestions);
+      } else if (logoArea) {
+        logoArea.style.display = 'none';
+        body.appendChild(convBlock);
+      } else {
+        body.appendChild(convBlock);
+      }
+      convBlock.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, 1500 + Math.random() * 800);
 }
-// Category tab switching
+
+function generateSmartReply(type, query) {
+  const q = query.toLowerCase();
+  if (type === 'citizen') {
+    if (q.includes('补贴') || q.includes('高温')) return '您好！根据济南市2026年高温补贴政策：<br><br>🌡️ 外卖员等户外劳动者，每年6-9月可领取高温津贴，标准为300元/月。<br><br>📋 申请方式：<br>· 打开"泉新公寓"服务入口<br>· 选择"高温补贴申请"<br>· 提交就业证明和身份证<br><br>💡 我可以帮您直接跳转到申请页面，需要吗？<br><span class="ai-action-link" onclick="citizenNav(\'serviceDetail\');closeAIDialog(\'citizen\')">👉 前往申请</span>';
+    if (q.includes('派单') || q.includes('距离')) return '收到您关于派单距离的反馈！我已自动生成诉求工单：<br><br>📝 <b>诉求摘要：</b>反映平台派单距离增大问题<br>📍 <b>位置：</b>系统自动获取当前定位<br>🏷️ <b>分类：</b>劳务纠纷<br>🔥 <b>紧急程度：</b>普通<br><br>供稿将推送至"民呼我应"系统，工作人员会尽快与您联系。预计反馈时间：<b>3个工作日内</b>。<br><br>✅ 诉求已自动提交，您可在"我的诉求"中查看进度。';
+    if (q.includes('公寓') || q.includes('房源') || q.includes('住房')) return '🏠 当前泉新公寓房源情况：<br><br>· <b>大明湖站：</b>余128套，月租600元起<br>· <b>泉城路站：</b>余52套（即将满房），月租800元起<br>· <b>趵突泉站：</b>余85套，月租700元起<br><br>📋 申请条件：济南市稳定就业满6个月，无自有住房<br><br>需要我帮您直接申请吗？<br><span class="ai-action-link" onclick="citizenNav(\'serviceDetail\');closeAIDialog(\'citizen\')">👉 查看房源详情</span>';
+    if (q.includes('办理') || q.includes('进度') || q.includes('诉求')) return '📋 您的诉求办理进度：<br><br>· <b>派单距离问题</b> — <span style="color:#2563eb;">处理中</span>（工作人员王建国已受理）<br>· <b>充电桩不足</b> — <span style="color:#059669;">已办结</span>（7月5日已回复）<br><br>如需查看详情，请前往"我的诉求"。<br><span class="ai-action-link" onclick="citizenNav(\'appeal\');closeAIDialog(\'citizen\')">👉 查看全部诉求</span>';
+    if (q.includes('驿站') || q.includes('休息') || q.includes('充电宝')) return '🏠 离您最近的泉心驿站：<br><br><b>大明湖站</b> — 1.2km<br>· 24小时开放，当前空闲12位<br>· 设施：饮水、充电、休息、微波炉、WiFi<br><br><b>泉城路站</b> — 2.5km<br>· 08:00-22:00，当前空闲23位<br>· 设施：饮水、充电、休息、淋浴、洗衣<br><br><span class="ai-action-link" onclick="citizenNav(\'stationMap\');closeAIDialog(\'citizen\')">👉 查看驿站地图</span>';
+    return '感谢您的提问！我已将您的问题进行分析：<br><br>🔍 <b>识别意图：</b>综合咨询<br>📋 <b>处理方式：</b>智能问答匹配<br><br>关于"' + escapeHtml(query) + '"，我建议：<br>· 您可前往"智能问答"查看详细政策解读<br>· 或拨打社工服务热线：<b>0531-12345</b><br><br>我还需要更多信息来更准确地帮您，可以补充说明吗？';
+  } else {
+    // Staff AI responses
+    if (q.includes('待办') || q.includes('任务') || q.includes('查询')) return '📋 您当前有 <b>7项待办任务</b>：<br><br>· 🔴 <b>新就业群体走访摸排</b> — 办理中（完成43.5%）<br>· 🔴 <b>泉新公寓入住资格审核</b> — 待签收<br>· 🔴 <b>季度服务数据汇总上报</b> — 待签收<br><br>最近截止的是"走访摸排任务"（7月15日），建议优先处理。<br><span class="ai-action-link" onclick="staffNav(\'task\');closeAIDialog(\'staff\')">👉 前往任务中心</span>';
+    if (q.includes('话术') || q.includes('转发') || q.includes('关怀') || q.includes('提醒')) return '已为您生成转发话术：<br><br>☀️ <b>【高温天气关怀提醒】</b><br>各位骑手师傅，今日最高气温达38°C，请注意防暑降温！<br>· 🧊 随身携带饮用水，每半小时补充水分<br>· 🏠 感觉不适及时到泉心驿站休息<br>· 📍 清凉驿站：大明湖站（24h）、泉城路站（8-22点）<br>· 🆘 如有中暑症状请立即拨打120<br><br>愿每一位劳动者都被温柔以待 ❤️<br><br><button class="btn btn-primary btn-sm" onclick="navigator.clipboard.writeText(this.parentElement.textContent.trim().split(\'❤️\')[0]);showToast(\'📋 话术已复制到剪贴板\')" style="margin-top:8px;">📋 一键复制</button> <button class="btn btn-outline btn-sm" onclick="showToast(\'📤 已转发至大明湖骑手群(186人)\')" style="margin-top:8px;">📤 转发明湖骑手群</button>';
+    if (q.includes('舆情') || q.includes('预警')) return '📡 今日舆情预警概览：<br><br>🔴 <b>严重：</b>1条 — 外卖骑手集体反映派单规则不公平（传播速度 ↑320%）<br>🟠 <b>警告：</b>1条 — 网约车司机集中投诉充电桩不足<br>🟡 <b>关注：</b>1条 — 直播从业者账号封禁问题<br><br>🔥 热词TOP3：派单距离远、超时扣款、充电桩不足<br><br><span class="ai-action-link" onclick="staffNav(\'sentiment\');closeAIDialog(\'staff\')">👉 查看舆情详情</span>';
+    if (q.includes('政策') || q.includes('补贴')) return '📚 关于新就业群体相关最新政策：<br><br>1. <b>高温补贴政策</b>（2026年修订版）<br>   · 户外劳动者6-9月每月300元<br>   · 由用人单位或平台发放<br><br>2. <b>社会保险政策</b><br>   · 新就业形态劳动者可灵活参保<br>   · 工伤、医疗、养老三险全覆盖<br><br>3. <b>住房保障政策</b><br>   · 稳定就业满6个月可申请公租房<br>   · 泉新公寓专项保障，低于市场价30%<br><br><span class="ai-action-link" onclick="closeAIDialog(\'staff\')">👉 了解更多</span>';
+    return '收到您的工作需求！关于"' + escapeHtml(query) + '"，我正在进行智能分析：<br><br>🔍 <b>识别意图：</b>综合工作咨询<br>📊 <b>关联数据：</b>服务台·诉求库·政策库<br><br>💡 建议：<br>· 您可以在"任务受领"中查看相关工单<br>· 或使用"我的助手"生成具体工作话术<br>· 如需政策查询，请告诉我具体政策名称<br><br>还有什么我能帮您的吗？';
+  }
+}
+// Category tab switching with filtering
 document.addEventListener('click', function(e) {
   if (e.target.classList.contains('ai-cat-tab')) {
     const parent = e.target.parentElement;
     if (!parent) return;
     parent.querySelectorAll('.ai-cat-tab').forEach(t => t.classList.remove('active'));
     e.target.classList.add('active');
+    const cat = e.target.dataset.cat;
+    // Filter suggestions based on category
+    const dlg = e.target.closest('.ai-dialog-overlay');
+    if (dlg && cat !== 'all') {
+      const chips = dlg.querySelectorAll('.ai-sugg-chip');
+      const catMap = { appeal: ['诉求', '反映', '派单'], suggest: ['建议'], policy: ['政策', '补贴'], qa: ['问答', '怎么', '什么'], service: ['公寓', '房源', '驿站', '办理'] };
+      const keywords = catMap[cat] || [];
+      chips.forEach(chip => {
+        const txt = chip.textContent.toLowerCase();
+        chip.style.display = keywords.some(kw => txt.includes(kw)) ? '' : 'none';
+      });
+    } else if (dlg) {
+      dlg.querySelectorAll('.ai-sugg-chip').forEach(c => c.style.display = '');
+    }
+  }
+});
+
+// Banner dot rotation
+let bannerTimer;
+function startBannerRotation() {
+  stopBannerRotation();
+  bannerTimer = setInterval(() => {
+    const banners = document.querySelectorAll('#citizenBody .banner:not([style*="cursor:pointer"])');
+    if (banners.length < 2) return;
+    const current = document.querySelector('#citizenBody .banner-dot.active');
+    if (!current) return;
+    const dots = current.parentElement.querySelectorAll('.banner-dot');
+    const idx = Array.from(dots).indexOf(current);
+    const next = (idx + 1) % dots.length;
+    dots.forEach(d => d.classList.remove('active'));
+    dots[next].classList.add('active');
+    // Rotate banner content
+    const bannerEl = current.closest('.banner');
+    const texts = [
+      { h3: '泉心服务 · 暖心同行', p: '您的声音，我们用心倾听' },
+      { h3: '🏠 泉新公寓开放申请', p: '200套保障性住房，月租600元起' },
+      { h3: '⭐ 泉城星光技能培训', p: '无人机·直播·电商 免费报名中' }
+    ];
+    if (bannerEl && texts[next]) {
+      const h3 = bannerEl.querySelector('h3'); if (h3) h3.textContent = texts[next].h3;
+      const p = bannerEl.querySelector('p'); if (p) p.textContent = texts[next].p;
+    }
+  }, 4000);
+}
+function stopBannerRotation() { if (bannerTimer) { clearInterval(bannerTimer); bannerTimer = null; } }
+// Start banner rotation when citizen tab is active
+const citizenTabBtn = document.querySelector('[data-tab="tab-citizen"]');
+if (citizenTabBtn) {
+  citizenTabBtn.addEventListener('click', startBannerRotation);
+  if (citizenTabBtn.classList.contains('active')) startBannerRotation();
+}
+// Stop when switching away
+document.querySelectorAll('#mainTabBar .tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.tab !== 'tab-citizen') stopBannerRotation();
+  });
+});
+
+// Escape key to close dialogs
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.ai-dialog-overlay.open').forEach(d => {
+      const type = d.id.replace('aiDialog-', '');
+      closeAIDialog(type);
+    });
   }
 });
 
@@ -2592,7 +2697,27 @@ function toggleAlert(el) {
   el.classList.toggle('expanded');
 }
 
-// ===== Auto-refresh sentiment data (demo) =====
+// Banner dot manual click
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('banner-dot')) {
+    const dots = e.target.parentElement.querySelectorAll('.banner-dot');
+    const idx = Array.from(dots).indexOf(e.target);
+    dots.forEach(d => d.classList.remove('active'));
+    e.target.classList.add('active');
+  }
+});
+
+// Station search filter
+document.addEventListener('input', function(e) {
+  if (e.target.closest('[data-page="stationMap"]') && e.target.type === 'text') {
+    const kw = e.target.value.trim().toLowerCase();
+    const page = e.target.closest('[data-page="stationMap"]');
+    if (!page) return;
+    page.querySelectorAll('.card').forEach(card => {
+      card.style.display = kw && !card.textContent.toLowerCase().includes(kw) ? 'none' : '';
+    });
+  }
+});
 let sentimentRefreshInterval;
 function startSentimentRefresh() {
   if (sentimentRefreshInterval) clearInterval(sentimentRefreshInterval);
@@ -2635,16 +2760,195 @@ function citizenNav(page) {
     if (match) match.classList.add('active');
   }
 
-  // Form submit → toast
+  // Form submit bindings
   if (page === 'suggest' || page === 'appeal') {
-    const submitBtn = target?.querySelector('.btn-accent, .btn-primary');
-    if (submitBtn && !submitBtn.dataset.bound) {
-      submitBtn.dataset.bound = '1';
-      submitBtn.addEventListener('click', () => {
-        const msg = page === 'suggest' ? '✅ 建议已提交至泉民建言' : '✅ 诉求已推送至民呼我应';
-        showToast(msg);
+    setTimeout(() => bindFormSubmit(page), 100);
+  }
+  // Q&A page chat binding
+  if (page === 'qa') {
+    setTimeout(bindQAChat, 100);
+  }
+  // Messages expand binding
+  if (page === 'messages') {
+    setTimeout(bindMsgExpand, 100);
+  }
+  // Service detail apply
+  if (page === 'serviceDetail') {
+    setTimeout(bindServiceApply, 100);
+  }
+}
+
+function bindFormSubmit(page) {
+  const body = document.getElementById('citizenBody');
+  if (!body) return;
+  const pageEl = body.querySelector(`[data-page="${page}"]`);
+  if (!pageEl) return;
+
+  // Bind submit button
+  const submitBtn = pageEl.querySelector('.btn-accent, .btn-primary');
+  if (submitBtn && !submitBtn.dataset.bound) {
+    submitBtn.dataset.bound = '1';
+    submitBtn.addEventListener('click', () => {
+      const msg = page === 'suggest' ? '✅ 建议已提交至泉民建言系统\n工作人员将在3个工作日内回复' : '✅ 诉求已推送至民呼我应系统\n您可在"我的诉求"中查看进度';
+      showToast(msg.replace(/\n/g, ' · '));
+      // Animate button
+      submitBtn.textContent = '✓ 提交成功';
+      submitBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+      setTimeout(() => { submitBtn.textContent = page === 'suggest' ? '提交建议' : '提交诉求'; submitBtn.style.background = ''; }, 2000);
+    });
+  }
+
+  // Emergency level tags (appeal only)
+  if (page === 'appeal') {
+    const tags = pageEl.querySelectorAll('.form-group:last-of-type .tag');
+    tags.forEach(tag => {
+      tag.addEventListener('click', () => {
+        tags.forEach(t => t.classList.remove('tag-selected'));
+        tag.classList.add('tag-selected');
       });
-    }
+    });
+  }
+
+  // Upload area click
+  const upload = pageEl.querySelector('.upload-area');
+  if (upload && !upload.dataset.bound) {
+    upload.dataset.bound = '1';
+    upload.addEventListener('click', () => {
+      upload.classList.toggle('upload-tapped');
+      if (upload.classList.contains('upload-tapped')) {
+        upload.innerHTML = '📸 已选择2张图片 <span style="font-size:10px;color:var(--text-3);">（点击添加更多）</span>';
+        setTimeout(() => { upload.classList.remove('upload-tapped'); }, 3000);
+      }
+    });
+  }
+
+  // Voice button
+  const voiceBtn = pageEl.querySelector('.voice-btn');
+  if (voiceBtn && !voiceBtn.dataset.bound) {
+    voiceBtn.dataset.bound = '1';
+    voiceBtn.addEventListener('click', () => {
+      voiceBtn.textContent = '🔴 正在录音...';
+      voiceBtn.style.background = '#fef2f2';
+      voiceBtn.style.animation = 'pulse 1s infinite';
+      setTimeout(() => {
+        voiceBtn.textContent = '🎤 语音输入';
+        voiceBtn.style.background = '';
+        voiceBtn.style.animation = '';
+        showToast('🎙️ 语音内容："建议在泉城路增设充电桩"');
+      }, 2000);
+    });
+  }
+
+  // Location input
+  const locInput = pageEl.querySelector('.form-input');
+  if (locInput && !locInput.dataset.bound) {
+    locInput.dataset.bound = '1';
+    locInput.addEventListener('click', () => {
+      locInput.textContent = '📍 济南市历下区大明湖路268号';
+      locInput.style.color = '#059669';
+      locInput.style.fontWeight = '600';
+      showToast('📍 已获取当前位置');
+    });
+  }
+}
+
+function bindQAChat() {
+  const body = document.getElementById('citizenBody');
+  if (!body) return;
+  const pageEl = body.querySelector('[data-page="qa"]');
+  if (!pageEl || pageEl.dataset.qaBound) return;
+  pageEl.dataset.qaBound = '1';
+
+  const input = pageEl.querySelector('.chat-input-bar input');
+  const sendBtn = pageEl.querySelector('.chat-input-bar button');
+  const chatList = pageEl.querySelector('.chat-list');
+  if (!input || !sendBtn || !chatList) return;
+
+  function sendQA() {
+    const text = input.value.trim();
+    if (!text) return;
+    // Add user message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-msg user';
+    userMsg.innerHTML = '<div class="chat-avatar user-av">我</div><div class="chat-bubble">' + escapeHtml(text) + '</div>';
+    chatList.appendChild(userMsg);
+    input.value = '';
+
+    // Simulate AI thinking
+    const thinkingMsg = document.createElement('div');
+    thinkingMsg.className = 'chat-msg ai';
+    thinkingMsg.innerHTML = '<div class="chat-avatar ai-av qxx-face"><img src="assets/avatar.png" alt="泉小新"></div><div><div class="chat-bubble" style="color:var(--text-3);">正在查询中...</div></div>';
+    chatList.appendChild(thinkingMsg);
+    chatList.scrollTop = chatList.scrollHeight;
+
+    setTimeout(() => {
+      thinkingMsg.remove();
+      const aiMsg = document.createElement('div');
+      aiMsg.className = 'chat-msg ai';
+      const reply = generateSmartReply('citizen', text);
+      aiMsg.innerHTML = '<div class="chat-avatar ai-av qxx-face"><img src="assets/avatar.png" alt="泉小新"></div><div><div class="chat-bubble">' + reply + '</div><div class="chat-source">📚 来源：济南市政策知识库 · 智能问答引擎</div></div>';
+      chatList.appendChild(aiMsg);
+      chatList.scrollTop = chatList.scrollHeight;
+    }, 1200 + Math.random() * 600);
+  }
+
+  sendBtn.addEventListener('click', sendQA);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendQA(); } });
+}
+
+function bindMsgExpand() {
+  const body = document.getElementById('citizenBody');
+  if (!body) return;
+  const pageEl = body.querySelector('[data-page="messages"]');
+  if (!pageEl || pageEl.dataset.msgBound) return;
+  pageEl.dataset.msgBound = '1';
+
+  pageEl.querySelectorAll('.card').forEach(card => {
+    card.classList.add('msg-card');
+    card.addEventListener('click', function() {
+      const wasExpanded = this.classList.contains('expanded');
+      pageEl.querySelectorAll('.card.expanded').forEach(c => { c.classList.remove('expanded'); const d = c.querySelector('.msg-detail'); if (d) d.classList.remove('open'); });
+      if (!wasExpanded) {
+        this.classList.add('expanded');
+        let detail = this.querySelector('.msg-detail');
+        if (!detail) {
+          detail = document.createElement('div');
+          detail.className = 'msg-detail open';
+          const title = this.querySelector('div[style]')?.textContent || '';
+          detail.innerHTML = '<div style="font-size:12px;color:var(--text-2);line-height:1.8;border-top:1px solid #f1f5f9;margin-top:6px;">' +
+            getMsgDetail(title) + '</div>';
+          this.appendChild(detail);
+        } else {
+          detail.classList.add('open');
+        }
+      }
+    });
+  });
+}
+
+function getMsgDetail(title) {
+  if (title.includes('诉求')) return '📋 <b>办理详情：</b><br>· 受理人：王建国<br>· 受理时间：2026-07-01<br>· 当前状态：处理中<br>· 预计办结：2026-07-05<br><br>您提交的关于"派单距离增大"的诉求已分配至大明湖街道工作人员，如需补充材料请回复本条消息。';
+  if (title.includes('房源')) return '🏠 <b>房源详情：</b><br>· 泉新公寓·大明湖站新增200套<br>· 户型：单间25-45m²<br>· 月租：600-1200元<br>· 设施：空调、热水器、WiFi<br>· 申请截止：2026-07-20<br><br>请前往"泉新公寓"入口提交申请材料。';
+  if (title.includes('培训')) return '⭐ <b>培训详情：</b><br>· 课程：无人机操作、直播运营、电商客服<br>· 时间：2026年7月15日起<br>· 地点：泉城路培训中心<br>· 费用：免费（政府补贴）<br>· 名额：每班30人<br><br>报名截止7月10日，先到先得！';
+  if (title.includes('高温')) return '☀️ <b>高温提醒详情：</b><br>· 今日气温：28°C ~ 38°C<br>· 高温橙色预警生效中<br>· 清凉驿站：大明湖站（24h开放）<br>· 防暑物资：免费饮用水、藿香正气水<br><br>请合理安排户外工作时间，注意身体健康！';
+  return '详情页面建设中，敬请期待。';
+}
+
+function bindServiceApply() {
+  const body = document.getElementById('citizenBody');
+  if (!body) return;
+  const pageEl = body.querySelector('[data-page="serviceDetail"]');
+  if (!pageEl || pageEl.dataset.svcBound) return;
+  pageEl.dataset.svcBound = '1';
+
+  const applyBtn = pageEl.querySelector('.btn-accent');
+  if (applyBtn) {
+    applyBtn.addEventListener('click', () => {
+      applyBtn.textContent = '✓ 申请已提交';
+      applyBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+      applyBtn.disabled = true;
+      showToast('🏠 泉新公寓申请已提交！请等待资格审核');
+    });
   }
 }
 
@@ -2661,9 +2965,272 @@ function staffNav(page) {
     const match = tbb.querySelector(`[data-ptab="${page}"]`);
     if (match) match.classList.add('active');
   }
-  // Sentiment page auto-refresh
-  if (page === 'sentiment') startSentimentRefresh();
+  // Sentiment auto-refresh
+  if (page === 'sentiment') { startSentimentRefresh(); setTimeout(bindSentimentActions, 100); }
   else stopSentimentRefresh();
+
+  // Task filter tabs
+  if (page === 'task') setTimeout(bindTaskFilters, 100);
+  // Appeal filter tabs + actions
+  if (page === 'appealHandle') setTimeout(bindAppealActions, 100);
+  // Assistant chat
+  if (page === 'assist') setTimeout(bindAssistChat, 100);
+  // Contact call
+  if (page === 'contact') setTimeout(bindContactCall, 100);
+}
+
+function bindTaskFilters() {
+  const body = document.getElementById('staffBody');
+  if (!body) return;
+  const pageEl = body.querySelector('[data-spage="task"]');
+  if (!pageEl || pageEl.dataset.taskBound) return;
+  pageEl.dataset.taskBound = '1';
+
+  const tags = pageEl.querySelectorAll('.filter-tag, .tag');
+  const items = pageEl.querySelectorAll('.list-item');
+  if (!tags.length || !items.length) return;
+
+  // Status mapping: 全部/待签收/办理中/已完成
+  const statusMap = { '全部': '', '待签收': '待签收', '办理中': '办理中', '已完成': '已完成' };
+
+  tags.forEach(tag => {
+    tag.addEventListener('click', () => {
+      tags.forEach(t => t.classList.remove('active'));
+      tag.classList.add('active');
+      const filter = statusMap[tag.textContent.trim()] || '';
+      items.forEach(item => {
+        const statusEl = item.querySelector('.tag:not(.filter-tag):not(.active)');
+        const status = statusEl?.textContent?.trim() || '';
+        if (!filter || status === filter) {
+          item.style.display = '';
+          item.style.animation = 'fadeUp .3s ease';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  });
+}
+
+function bindAppealActions() {
+  const body = document.getElementById('staffBody');
+  if (!body) return;
+  const pageEl = body.querySelector('[data-spage="appealHandle"]');
+  if (!pageEl || pageEl.dataset.appealBound) return;
+  pageEl.dataset.appealBound = '1';
+
+  // Filter tabs
+  const tags = pageEl.querySelectorAll('.filter-tag, .tag');
+  const cards = pageEl.querySelectorAll('.card');
+  tags.forEach(tag => {
+    tag.addEventListener('click', () => {
+      tags.forEach(t => t.classList.remove('active'));
+      tag.classList.add('active');
+      const filter = tag.textContent.trim();
+      cards.forEach(card => {
+        const statusEl = card.querySelector('.tag:not(.filter-tag):not(.active)');
+        const status = statusEl?.textContent?.trim() || '';
+        if (filter.includes('全部') || filter.includes(status)) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // Add action buttons to each card
+  cards.forEach(card => {
+    if (card.querySelector('.appeal-actions')) return;
+    const statusEl = card.querySelector('.tag');
+    const status = statusEl?.textContent?.trim() || '';
+    const actions = document.createElement('div');
+    actions.className = 'appeal-actions';
+
+    if (status === '待处理') {
+      actions.innerHTML = '<button class="appeal-btn primary">✅ 签收并处理</button><button class="appeal-btn warn">🚨 上报</button>';
+    } else if (status === '处理中') {
+      actions.innerHTML = '<button class="appeal-btn success">✅ 标记办结</button><button class="appeal-btn outline">📝 回访</button>';
+    } else if (status === '已办结') {
+      actions.innerHTML = '<button class="appeal-btn outline">📋 查看详情</button><button class="appeal-btn outline">📊 归档</button>';
+    }
+    card.appendChild(actions);
+
+    // Bind action buttons
+    actions.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = btn.textContent.trim();
+        if (action.includes('签收') || action.includes('处理')) {
+          statusEl.textContent = '处理中';
+          statusEl.className = 'tag tag-warning';
+          btn.textContent = '✓ 已签收';
+          btn.disabled = true;
+          btn.style.opacity = '0.6';
+          showToast('📋 诉求已签收，请及时处理');
+        } else if (action.includes('办结')) {
+          statusEl.textContent = '已办结';
+          statusEl.className = 'tag tag-success';
+          actions.innerHTML = '<span class="handled-badge">✅ 已办结</span><button class="appeal-btn outline" style="margin-left:auto;">📋 查看详情</button>';
+          showToast('✅ 诉求已办结');
+        } else if (action.includes('上报')) {
+          showToast('🚨 已上报至区委社工部');
+        } else if (action.includes('回访')) {
+          showToast('📝 已生成回访任务，提醒：3个工作日内完成');
+        } else if (action.includes('查看') || action.includes('归档')) {
+          showToast('📊 详情页面加载中...');
+        }
+      });
+    });
+  });
+}
+
+function bindSentimentActions() {
+  const body = document.getElementById('staffBody');
+  if (!body) return;
+  const pageEl = body.querySelector('[data-spage="sentiment"]');
+  if (!pageEl || pageEl.dataset.sentBound) return;
+  pageEl.dataset.sentBound = '1';
+
+  pageEl.querySelectorAll('.alert-card').forEach(card => {
+    // "立即处置" button
+    const handleBtn = card.querySelector('.btn-handle');
+    if (handleBtn) {
+      handleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const titleEl = card.querySelector('.ac-title');
+        const title = titleEl?.textContent?.trim() || '';
+        handleBtn.textContent = '✓ 已处置';
+        handleBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+        handleBtn.style.color = '#fff';
+        handleBtn.style.border = 'none';
+        handleBtn.disabled = true;
+        showToast('✅ 预警工单已处置：「' + title + '」');
+      });
+    }
+    // "上报领导" button
+    const escalateBtn = card.querySelector('.btn-escalate');
+    if (escalateBtn) {
+      escalateBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const titleEl = card.querySelector('.ac-title');
+        const title = titleEl?.textContent?.trim() || '';
+        escalateBtn.textContent = '✓ 已上报';
+        escalateBtn.style.background = 'linear-gradient(135deg,#f97316,#ea580c)';
+        escalateBtn.style.color = '#fff';
+        escalateBtn.style.border = 'none';
+        escalateBtn.disabled = true;
+        showToast('🚨「' + title + '」已上报区委社工部领导');
+      });
+    }
+    // "持续观察" button
+    const ignoreBtn = card.querySelector('.btn-ignore');
+    if (ignoreBtn) {
+      ignoreBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        ignoreBtn.textContent = '👁 观察中...';
+        ignoreBtn.style.background = '#f1f5f9';
+        ignoreBtn.disabled = true;
+        showToast('👁 已标记为持续观察，24小时后自动复评');
+      });
+    }
+  });
+}
+
+function bindAssistChat() {
+  const body = document.getElementById('staffBody');
+  if (!body) return;
+  const pageEl = body.querySelector('[data-spage="assist"]');
+  if (!pageEl || pageEl.dataset.assistBound) return;
+  pageEl.dataset.assistBound = '1';
+
+  const chatList = pageEl.querySelector('.chat-list');
+  if (!chatList) return;
+
+  // Add input bar to the assist page
+  const inputBar = document.createElement('div');
+  inputBar.className = 'chat-input-bar';
+  inputBar.innerHTML = '<input type="text" placeholder="输入您的工作需求..."><button class="btn btn-primary btn-sm">发送</button>';
+  pageEl.appendChild(inputBar);
+
+  const input = inputBar.querySelector('input');
+  const sendBtn = inputBar.querySelector('button');
+
+  function sendAssist() {
+    const text = input.value.trim();
+    if (!text) return;
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-msg user';
+    userMsg.innerHTML = '<div class="chat-avatar user-av">王</div><div class="chat-bubble">' + escapeHtml(text) + '</div>';
+    chatList.appendChild(userMsg);
+    input.value = '';
+
+    const thinkingMsg = document.createElement('div');
+    thinkingMsg.className = 'chat-msg ai';
+    thinkingMsg.innerHTML = '<div class="chat-avatar ai-av">AI</div><div><div class="chat-bubble" style="color:var(--text-3);">思考中...</div></div>';
+    chatList.appendChild(thinkingMsg);
+    chatList.scrollTop = chatList.scrollHeight;
+
+    setTimeout(() => {
+      thinkingMsg.remove();
+      const aiMsg = document.createElement('div');
+      aiMsg.className = 'chat-msg ai';
+      const reply = generateSmartReply('staff', text);
+      aiMsg.innerHTML = '<div class="chat-avatar ai-av">AI</div><div><div class="chat-bubble">' + reply + '</div></div>';
+      chatList.appendChild(aiMsg);
+      chatList.scrollTop = chatList.scrollHeight;
+    }, 1200 + Math.random() * 600);
+  }
+
+  sendBtn.addEventListener('click', sendAssist);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendAssist(); } });
+}
+
+function bindContactCall() {
+  const body = document.getElementById('staffBody');
+  if (!body) return;
+  const pageEl = body.querySelector('[data-spage="contact"]');
+  if (!pageEl || pageEl.dataset.contactBound) return;
+  pageEl.dataset.contactBound = '1';
+
+  pageEl.querySelectorAll('.list-item span[style]').forEach(span => {
+    if (span.textContent.includes('联系')) {
+      span.style.cursor = 'pointer';
+      span.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const name = span.closest('.list-item')?.querySelector('.li-title')?.textContent?.trim() || '对方';
+        span.textContent = '📞 拨打中...';
+        span.style.color = '#059669';
+        setTimeout(() => {
+          span.textContent = '📞 联系';
+          span.style.color = '';
+          showToast('📞 正在呼叫 ' + name + '...');
+        }, 1500);
+      });
+    }
+  });
+
+  // Search filter
+  const searchInput = pageEl.querySelector('.search-bar input');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const keyword = searchInput.value.trim().toLowerCase();
+      pageEl.querySelectorAll('.list-item').forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = keyword && !text.includes(keyword) ? 'none' : '';
+      });
+      // Hide section headers when filtering
+      pageEl.querySelectorAll('div[style*="font-size:12px;font-weight:600"]').forEach(h => {
+        if (keyword && h.textContent.includes('大明湖') || h.textContent.includes('联动')) {
+          const nextItems = [];
+          let next = h.nextElementSibling;
+          while (next && next.classList.contains('list-item')) { nextItems.push(next); next = next.nextElementSibling; }
+          const visible = nextItems.some(i => i.style.display !== 'none');
+          h.style.display = visible ? '' : 'none';
+        }
+      });
+    });
+  }
 }
 
 // ===== WorkBuddy 管理端交互 =====
@@ -3269,6 +3836,50 @@ function qxxWaveHello() {
 @keyframes fadeUp { from { opacity:0; transform:translateX(-50%) translateY(10px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
 @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
 @keyframes dotPing { 0% { box-shadow:0 0 0 0 rgba(249,115,22,.5); } 70% { box-shadow:0 0 0 12px rgba(249,115,22,0); } 100% { box-shadow:0 0 0 0 rgba(249,115,22,0); } }
+
+/* AI对话块（居民端+工作人员端共用） */
+.ai-conv-block { padding:0 0 16px; }
+.ai-conv-user, .ai-conv-ai { margin-bottom:10px; }
+.ai-conv-label { font-size:10px; color:var(--text-3); margin-bottom:3px; padding:0 2px; }
+.ai-conv-bubble { font-size:13px; line-height:1.7; padding:10px 14px; border-radius:var(--radius); max-width:100%; }
+.ai-conv-bubble.user { background:var(--primary); color:#fff; margin-left:20px; border-radius:16px 4px 16px 16px; }
+.ai-conv-bubble.ai { background:#f1f5f9; color:var(--text-1); margin-right:20px; border-radius:4px 16px 16px 16px; }
+.ai-action-link { display:inline-block; margin-top:8px; color:#2563eb; font-weight:600; font-size:13px; cursor:pointer; text-decoration:underline; }
+.ai-action-link:hover { color:#1a4a78; }
+
+/* 紧急程度标签选中态 */
+.tag-selected { outline:2px solid var(--primary); outline-offset:2px; }
+
+/* 上传区域点击态 */
+.upload-tapped { background:#e8f0fe !important; border-color:var(--primary) !important; }
+
+/* 消息卡片展开 */
+.msg-card { cursor:pointer; transition:all .2s; }
+.msg-card.expanded { background:#f8fafc; }
+.msg-detail { max-height:0; overflow:hidden; transition:max-height .3s; }
+.msg-detail.open { max-height:300px; padding:10px 0 0; }
+
+/* 任务/诉求筛选标签 */
+.filter-tag { cursor:pointer; transition:all .2s; }
+.filter-tag.active { }
+.filter-tag:not(.active):hover { background:#e2e8f0; }
+
+/* 工作人员端行动按钮 */
+.alert-actions button { cursor:pointer; transition:all .2s; }
+.alert-actions button:hover { transform:translateY(-1px); box-shadow:0 2px 8px rgba(0,0,0,.12); }
+.alert-actions button:active { transform:scale(.97); }
+
+/* 诉求处置操作按钮 */
+.appeal-actions { display:flex; gap:8px; margin-top:10px; }
+.appeal-btn { padding:7px 16px; border-radius:100px; border:none; font-size:12px; font-weight:600; cursor:pointer; transition:all .2s; }
+.appeal-btn:hover { transform:translateY(-1px); }
+.appeal-btn.primary { background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; }
+.appeal-btn.warn { background:linear-gradient(135deg,#f97316,#ea580c); color:#fff; }
+.appeal-btn.success { background:linear-gradient(135deg,#059669,#047857); color:#fff; }
+.appeal-btn.outline { background:#fff; color:var(--text-2); border:1px solid #e2e8f0; }
+
+/* 已操作状态 */
+.handled-badge { display:inline-flex; align-items:center; gap:4px; font-size:10px; padding:3px 10px; border-radius:100px; background:#ecfdf5; color:#059669; white-space:nowrap; }
 </style>
 
 </body>
