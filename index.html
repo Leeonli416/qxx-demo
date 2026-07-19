@@ -549,6 +549,58 @@ body::before {
 }
 .chat-input-bar input:focus { border-color: #2563eb; background: #fff; }
 
+/* ===== 微信风格输入栏 ===== */
+.wx-input-row { display:flex; align-items:center; gap:8px; }
+.wx-text-mode, .wx-voice-mode { display:flex; align-items:center; gap:8px; flex:1; }
+.wx-text-mode textarea, .wx-text-mode input {
+  flex:1; border:1.5px solid var(--border); border-radius:8px;
+  padding:10px 14px; font-size:14px; outline:none; font-family:inherit;
+  background:#f8fafc; transition:all .2s; resize:none; min-height:40px;
+  line-height:1.4;
+}
+.wx-text-mode textarea:focus, .wx-text-mode input:focus { border-color:#2563eb; background:#fff; }
+.wx-toggle-btn {
+  width:36px; height:36px; border:none; border-radius:50%;
+  background:#f0f0f0; font-size:18px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; transition:all .15s;
+}
+.wx-toggle-btn:hover { background:#e0e0e0; }
+.wx-toggle-btn:active { transform:scale(.9); }
+.wx-voice-hold-area {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  background:#fff; border:1.5px solid #e0e0e0; border-radius:8px;
+  padding:11px 0; font-size:15px; font-weight:500; color:#333;
+  cursor:pointer; user-select:none; -webkit-user-select:none;
+  transition:all .15s; min-height:40px; letter-spacing:1px;
+}
+.wx-voice-hold-area:hover { border-color:#ccc; background:#fafafa; }
+.wx-voice-hold-area:active, .wx-voice-hold-area.recording {
+  background:#e8f5e9; border-color:#4caf50; color:#2e7d32;
+  animation:wxVoicePulse .8s infinite;
+}
+/* AI对话框中的textarea适应微信布局 */
+.wx-text-mode .ai-big-input { flex:1; width:auto; min-height:48px; max-height:120px; border-radius:12px; border-width:1.5px; padding:10px 14px; }
+.wx-send-btn {
+  width:40px; height:40px; border:none; border-radius:50%;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff;
+  font-size:18px; cursor:pointer; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .15s;
+}
+.wx-send-btn:hover { transform:scale(1.05); }
+.wx-send-btn:active { transform:scale(.9); }
+@keyframes wxVoicePulse {
+  0%,100% { box-shadow:0 0 0 0 rgba(76,175,80,.4); }
+  50% { box-shadow:0 0 0 8px rgba(76,175,80,0); }
+}
+
+/* 小号版本 (chat-input-bar 内使用) */
+.chat-input-bar .wx-text-mode input { font-size:13px; padding:8px 12px; min-height:36px; }
+.chat-input-bar .wx-toggle-btn { width:34px; height:34px; font-size:17px; }
+.chat-input-bar .wx-voice-hold-area { font-size:14px; padding:9px 0; min-height:36px; }
+.chat-input-bar .wx-send-btn { width:36px; height:36px; font-size:16px; }
+
 /* Task / List items */
 .list-item {
   display: flex; align-items: center; gap: 12px; padding: 14px;
@@ -1327,14 +1379,19 @@ body::before {
                 <span class="ai-cat-tab" data-cat="service">办业务</span>
               </div>
               <div class="ai-input-area">
-                <textarea class="ai-big-input" placeholder="直接说出您想做什么，我帮您自动办理..." rows="1"></textarea>
-                <div class="ai-input-tools">
-                  <div class="ai-tool-left">
-                    <button class="voice-hold-btn" id="voiceBtn-citizen" data-type="citizen" data-mode="dialog">
-                      <span class="voice-icon">🎤</span>按住说话
-                    </button>
+                <!-- 微信风格输入栏 -->
+                <div class="wx-input-row" data-wx-input="citizen">
+                  <!-- 文字输入模式 -->
+                  <div class="wx-text-mode">
+                    <textarea class="ai-big-input" placeholder="直接说出您想做什么，我帮您自动办理..." rows="1"></textarea>
+                    <button class="wx-send-btn" onclick="handleAISend('citizen')" title="发送">↑</button>
+                    <button class="wx-toggle-btn" onclick="wxToggleMode(this)" title="切换语音">🎤</button>
                   </div>
-                  <button class="ai-send-btn" onclick="handleAISend('citizen')">↑ 发送</button>
+                  <!-- 语音输入模式（默认隐藏） -->
+                  <div class="wx-voice-mode" style="display:none">
+                    <button class="wx-voice-hold-area" data-wx-voice="citizen-dialog">按住 说话</button>
+                    <button class="wx-toggle-btn" onclick="wxToggleMode(this)" title="切换键盘">⌨</button>
+                  </div>
                 </div>
               </div>
               <div class="ai-thinking" id="aiThinking-citizen">
@@ -1557,11 +1614,17 @@ body::before {
             </div>
           </div>
           <div class="chat-input-bar">
-            <input type="text" placeholder="输入您的问题...">
-            <button class="btn btn-primary btn-sm" onclick="this.closest('.chat-input-bar').querySelector('input').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter'}))">发送</button>
-            <button class="voice-hold-btn" id="voiceBtn-qacitizen" data-type="qa-citizen" data-mode="chat" style="padding:6px 14px;font-size:12px;margin-left:6px;">
-              <span class="voice-icon">🎤</span>按住说话
-            </button>
+            <div class="wx-input-row" data-wx-input="qa-citizen">
+              <div class="wx-text-mode">
+                <input type="text" placeholder="输入您的问题...">
+                <button class="wx-send-btn" onclick="this.closest('.chat-input-bar').querySelector('input').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter'}))" title="发送">↑</button>
+                <button class="wx-toggle-btn" onclick="wxToggleMode(this)" title="切换语音">🎤</button>
+              </div>
+              <div class="wx-voice-mode" style="display:none">
+                <button class="wx-voice-hold-area" data-wx-voice="qa-citizen">按住 说话</button>
+                <button class="wx-toggle-btn" onclick="wxToggleMode(this)" title="切换键盘">⌨</button>
+              </div>
+            </div>
           </div>
         </div>
         <!-- 消息中心 -->
@@ -1693,14 +1756,19 @@ body::before {
                 <span class="ai-cat-tab" data-cat="sentiment">舆情分析</span>
               </div>
               <div class="ai-input-area">
-                <textarea class="ai-big-input" placeholder="直接说出您的工作需求，AI帮您自动处理..." rows="1"></textarea>
-                <div class="ai-input-tools">
-                  <div class="ai-tool-left">
-                    <button class="voice-hold-btn" id="voiceBtn-staff" data-type="staff" data-mode="dialog">
-                      <span class="voice-icon">🎤</span>按住说话
-                    </button>
+                <!-- 微信风格输入栏 -->
+                <div class="wx-input-row" data-wx-input="staff">
+                  <!-- 文字输入模式 -->
+                  <div class="wx-text-mode">
+                    <textarea class="ai-big-input" placeholder="直接说出您的工作需求，AI帮您自动处理..." rows="1"></textarea>
+                    <button class="wx-send-btn" onclick="handleAISend('staff')" title="发送">↑</button>
+                    <button class="wx-toggle-btn" onclick="wxToggleMode(this)" title="切换语音">🎤</button>
                   </div>
-                  <button class="ai-send-btn" onclick="handleAISend('staff')">↑ 发送</button>
+                  <!-- 语音输入模式（默认隐藏） -->
+                  <div class="wx-voice-mode" style="display:none">
+                    <button class="wx-voice-hold-area" data-wx-voice="staff-dialog">按住 说话</button>
+                    <button class="wx-toggle-btn" onclick="wxToggleMode(this)" title="切换键盘">⌨</button>
+                  </div>
                 </div>
               </div>
               <div class="ai-thinking" id="aiThinking-staff">
@@ -2867,8 +2935,8 @@ function bindQAChat() {
   if (!pageEl || pageEl.dataset.qaBound) return;
   pageEl.dataset.qaBound = '1';
 
-  const input = pageEl.querySelector('.chat-input-bar input');
-  const sendBtn = pageEl.querySelector('.chat-input-bar button');
+  const input = pageEl.querySelector('.chat-input-bar .wx-text-mode input');
+  const sendBtn = pageEl.querySelector('.chat-input-bar .wx-send-btn');
   const chatList = pageEl.querySelector('.chat-list');
   if (!input || !sendBtn || !chatList) return;
 
@@ -2906,8 +2974,8 @@ function bindQAChat() {
   sendBtn.addEventListener('click', sendQA);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendQA(); } });
 
-  // 绑定语音按钮
-  const voiceBtn = pageEl.querySelector('.voice-hold-btn');
+  // 绑定语音按钮 (在 wx-voice-mode 中)
+  const voiceBtn = pageEl.querySelector('.chat-input-bar .wx-voice-hold-area');
   if (voiceBtn && !voiceBtn.dataset.voiceBound) {
     bindVoiceButton(voiceBtn, input, sendQA);
   }
@@ -3167,14 +3235,14 @@ function bindAssistChat() {
   // Add input bar to the assist page
   const inputBar = document.createElement('div');
   inputBar.className = 'chat-input-bar';
-  inputBar.innerHTML = '<input type="text" placeholder="输入您的工作需求..."><button class="btn btn-primary btn-sm">发送</button><button class="voice-hold-btn" data-type="assist-staff" data-mode="chat" style="padding:6px 14px;font-size:12px;margin-left:6px;"><span class="voice-icon">🎤</span>按住说话</button>';
+  inputBar.innerHTML = '<div class="wx-input-row" data-wx-input="assist-staff"><div class="wx-text-mode"><input type="text" placeholder="输入您的工作需求..."><button class="wx-send-btn" title="发送">↑</button><button class="wx-toggle-btn" onclick="wxToggleMode(this)" title="切换语音">🎤</button></div><div class="wx-voice-mode" style="display:none"><button class="wx-voice-hold-area" data-wx-voice="assist-staff">按住 说话</button><button class="wx-toggle-btn" onclick="wxToggleMode(this)" title="切换键盘">⌨</button></div></div>';
   pageEl.appendChild(inputBar);
 
-  const input = inputBar.querySelector('input');
-  const sendBtn = inputBar.querySelector('button');
-  // Bind voice to the new button
-  const voiceBtn = inputBar.querySelector('.voice-hold-btn');
-  if (voiceBtn) bindVoiceButton(voiceBtn, input, sendAssist);
+  const input = inputBar.querySelector('.wx-text-mode input');
+  const sendBtn = inputBar.querySelector('.wx-send-btn');
+  // Bind voice to the new button in wx-voice-mode
+  const voiceBtn = inputBar.querySelector('.wx-voice-hold-area');
+  if (voiceBtn && !voiceBtn.dataset.voiceBound) bindVoiceButton(voiceBtn, input, sendAssist);
 
   function sendAssist() {
     const text = input.value.trim();
@@ -3921,8 +3989,15 @@ function bindVoiceButton(btn, targetInput, sendCallback) {
   function startVoice(e) {
     e.preventDefault();
     btn.classList.add('recording');
-    btn.querySelector('.voice-icon').textContent = '🔴';
-    btn.querySelector('.voice-icon').nextSibling.textContent = '松开发送';
+    // 适配新旧两种按钮样式
+    const iconEl = btn.querySelector('.voice-icon');
+    if (iconEl) {
+      iconEl.textContent = '🔴';
+      if (iconEl.nextSibling) iconEl.nextSibling.textContent = '松开发送';
+    } else {
+      // 新微信风格按钮：直接改文字
+      btn.textContent = '🔴 松开发送';
+    }
     showRecordingOverlay();
     // 清除之前的结果
     btn.dataset.voiceResult = '';
@@ -3946,8 +4021,15 @@ function bindVoiceButton(btn, targetInput, sendCallback) {
     if (!btn.classList.contains('recording')) return;
     e.preventDefault();
     btn.classList.remove('recording');
-    btn.querySelector('.voice-icon').textContent = '🎤';
-    btn.querySelector('.voice-icon').nextSibling.textContent = '按住说话';
+    // 适配新旧两种按钮样式
+    const iconEl = btn.querySelector('.voice-icon');
+    if (iconEl) {
+      iconEl.textContent = '🎤';
+      if (iconEl.nextSibling) iconEl.nextSibling.textContent = '按住说话';
+    } else {
+      // 新微信风格按钮：恢复文字
+      btn.textContent = '按住 说话';
+    }
     hideRecordingOverlay();
 
     const rec = getRecognition();
@@ -3984,32 +4066,75 @@ function updateOverlayText(text) {
   if (el) el.textContent = '🎙️ 识别到：「' + text + '」';
 }
 
+// ===== 微信风格语音/文字切换 =====
+function wxToggleMode(toggleBtn) {
+  const row = toggleBtn.closest('.wx-input-row');
+  if (!row) return;
+  const textMode = row.querySelector('.wx-text-mode');
+  const voiceMode = row.querySelector('.wx-voice-mode');
+  if (!textMode || !voiceMode) return;
+
+  const isText = textMode.style.display !== 'none';
+  if (isText) {
+    // 切换到语音模式
+    textMode.style.display = 'none';
+    voiceMode.style.display = 'flex';
+    // 绑定语音按钮
+    const voiceBtn = voiceMode.querySelector('.wx-voice-hold-area');
+    if (voiceBtn && !voiceBtn.dataset.voiceBound) {
+      const inputId = row.dataset.wxInput;
+      const textInput = textMode.querySelector('textarea') || textMode.querySelector('input');
+      let sendFn;
+      if (inputId === 'citizen' || inputId === 'staff') {
+        sendFn = () => handleAISend(inputId);
+      } else if (inputId === 'qa-citizen') {
+        sendFn = () => {
+          const inp = textMode.querySelector('input');
+          if (inp) inp.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        };
+      } else if (inputId === 'assist-staff') {
+        sendFn = () => {
+          const inp = textMode.querySelector('input');
+          if (inp) inp.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        };
+      }
+      bindVoiceButton(voiceBtn, textInput, sendFn);
+    }
+  } else {
+    // 切换回文字模式
+    voiceMode.style.display = 'none';
+    textMode.style.display = 'flex';
+    // focus input
+    setTimeout(() => {
+      const inp = textMode.querySelector('textarea') || textMode.querySelector('input');
+      if (inp) inp.focus();
+    }, 100);
+  }
+}
+
 // 初始化所有语音按钮
 function initAllVoiceButtons() {
-  // AI 对话框中的语音按钮
-  document.querySelectorAll('.voice-hold-btn[data-mode="dialog"]').forEach(btn => {
+  document.querySelectorAll('.wx-voice-hold-area').forEach(btn => {
     if (btn.dataset.voiceBound) return;
-    const type = btn.dataset.type;
-    const dlg = document.getElementById('aiDialog-' + type);
-    if (!dlg) return;
-    const textarea = dlg.querySelector('.ai-big-input');
-    bindVoiceButton(btn, textarea, () => handleAISend(type));
-  });
-
-  // 智能问答页的语音按钮
-  const qaVoiceBtn = document.getElementById('voiceBtn-qacitizen');
-  if (qaVoiceBtn) {
-    const chatBar = qaVoiceBtn.closest('.chat-input-bar');
-    if (chatBar) {
-      const input = chatBar.querySelector('input');
-      const sendBtn = qaVoiceBtn.previousElementSibling;
-      // We need the sendQA function, which is scoped inside bindQAChat
-      // Use a workaround: dispatch Enter key
-      bindVoiceButton(qaVoiceBtn, input, () => {
-        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
-      });
+    const row = btn.closest('.wx-input-row');
+    if (!row) return;
+    const inputId = row.dataset.wxInput;
+    const textMode = row.querySelector('.wx-text-mode');
+    const textInput = textMode ? (textMode.querySelector('textarea') || textMode.querySelector('input')) : null;
+    let sendFn;
+    if (inputId === 'citizen' || inputId === 'staff') {
+      sendFn = () => handleAISend(inputId);
+    } else if (inputId === 'qa-citizen') {
+      sendFn = () => {
+        if (textInput) textInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      };
+    } else if (inputId === 'assist-staff') {
+      sendFn = () => {
+        if (textInput) textInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      };
     }
-  }
+    bindVoiceButton(btn, textInput, sendFn);
+  });
 }
 
 // 页面加载后初始化
